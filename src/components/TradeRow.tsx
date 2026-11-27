@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { gbp, rMultiple, shortDate, tone } from "@/lib/format";
+import { gbp, gradeClass, rMultiple, shortDate, tone } from "@/lib/format";
 import type { Trade } from "@/lib/types";
 
-export function TradeRow({ trade, setupName }: { trade: Trade; setupName?: string | null }) {
+export function TradeRow({ trade, setupName }: { trade: Trade & { grade?: string | null }; setupName?: string | null }) {
   const open = trade.status === "open";
   const dir = trade.direction === "long" ? "Long" : "Short";
   return (
@@ -23,7 +23,10 @@ export function TradeRow({ trade, setupName }: { trade: Trade; setupName?: strin
       ) : (
         <div className="flex flex-col items-end gap-[3px]">
           <span className={`num font-semibold ${tone(trade.pnl_gbp)}`}>{gbp(trade.pnl_gbp, { sign: true })}</span>
-          <span className="num muted text-xs">{rMultiple(trade.r_multiple)}</span>
+          <span className="flex items-center gap-1.5">
+            <span className="num muted text-xs">{rMultiple(trade.r_multiple)}</span>
+            {trade.grade && <span className={`pill ${gradeClass(trade.grade)}`} aria-label={`Coach grade ${trade.grade}`}>{trade.grade}</span>}
+          </span>
         </div>
       )}
     </Link>

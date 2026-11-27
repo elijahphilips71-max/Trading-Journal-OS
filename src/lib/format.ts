@@ -51,3 +51,12 @@ export function shortDate(at: string | null | undefined, withYear = false) {
 export function shareCount(n: number) {
   return Number.isInteger(n) ? String(n) : n.toFixed(2);
 }
+
+/** Pill colour for a coach grade. */
+export function gradeClass(grade: string | null | undefined) {
+  if (!grade) return "neutral";
+  if (grade.startsWith("A")) return "ok";
+  if (grade.startsWith("B")) return "info";
+  if (grade.startsWith("C")) return "warn";
+  return "bad";
+}

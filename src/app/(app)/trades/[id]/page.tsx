@@ -5,7 +5,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { CheckIcon, CrossIcon } from "@/components/icons";
 import { requireOnboarded } from "@/lib/data";
 import { gbp, pct, rMultiple, shareCount, shortDate, tone, usd } from "@/lib/format";
-import { getTrade, listScreenshots, listSetups } from "@/lib/journal";
+import { coachMessages, getTrade, latestReview, listScreenshots, listSetups } from "@/lib/journal";
+import { CoachChat, CoachReview } from "@/components/CoachPanel";
+import { aiConfigured } from "@/lib/ai/coach";
 import { ScreenshotGallery } from "@/components/ScreenshotGallery";
 import { daysBetween, londonDay } from "@/lib/maths";
 import { CloseTradeForm, DeleteTradeButton, ReopenButton } from "./TradeActions";
@@ -16,7 +18,14 @@ export default async function TradePage({ params, searchParams }: PageProps<"/tr
   const { id } = await params;
   const sp = await searchParams;
   const { supabase, userId } = await requireOnboarded();
-  const [trade, setups, shots] = await Promise.all([getTrade(supabase, id), listSetups(supabase), listScreenshots(supabase, id)]);
+  const [trade, setups, shots, review, messages] = await Promise.all([
+    getTrade(supabase, id),
+    listSetups(supabase),
+    listScreenshots(supabase, id),
+    latestReview(supabase, id),
+    coachMessages(supabase, id),
+  ]);
+  const aiOn = aiConfigured();
   if (!trade) notFound();
 
   const setup = setups.find((s) => s.id === trade.setup_id);
@@ -79,12 +88,7 @@ export default async function TradePage({ params, searchParams }: PageProps<"/tr
           </div>
         </div>
 
-        <div className="card ai">
-          <span className="font-bold" style={{ color: "var(--accent-soft)" }}>AI coach review</span>
-          <span className="muted" style={{ lineHeight: 1.5 }}>
-            The coach will grade your process here once it&apos;s switched on.
-          </span>
-        </div>
+        <CoachReview tradeId={trade.id} closed={!open} aiOn={aiOn} review={review} />
 
         {trade.trade_rules.length > 0 && (
           <div className="card" style={{ gap: 2 }}>
@@ -107,6 +111,14 @@ export default async function TradePage({ params, searchParams }: PageProps<"/tr
             <p className="m-0 whitespace-pre-wrap" style={{ lineHeight: 1.5 }}>{trade.notes}</p>
           </div>
         )}
+
+        <CoachChat
+          tradeId={trade.id}
+          aiOn={aiOn}
+          messages={messages}
+          placeholder="e.g. Was my stop in a good place?"
+          suggestions={open ? ["Is my plan solid?", "Where should my stop go?"] : ["What should I learn from this?", "Did I exit too early?"]}
+        />
 
         <div className="grid2">
           <Link href={`/trades/${trade.id}/edit`} className="btn sec">
