@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Swing Journal phone app</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#06080C}
+a{color:#7EA6FF}a:hover{color:#A9C3FF}
+.app{width:390px;height:844px;background:#0B0E13;color:#E6EAF2;font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;position:relative;font-size:14px}
+.hdr{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #1A2130}
+.hdr h1{margin:0;font-size:18px;font-weight:700;letter-spacing:-0.01em}
+.scroll{flex:1;overflow-y:auto;padding:16px 16px 28px;display:flex;flex-direction:column;gap:14px}
+.card{background:#121721;border:1px solid #222A39;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:#8E98AB}
+.lbl{font-size:12px;color:#8E98AB;font-weight:500}
+.num{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.up{color:#36D399}.dn{color:#FF8080}.flat{color:#8E98AB}
+.big{font-size:30px;font-weight:700;letter-spacing:-0.02em}
+.h2{font-size:16px;font-weight:700;margin:0}
+.pill{font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:#123326;color:#5BE3AB}.pill.warn{background:#3A2C10;color:#F5C866}.pill.bad{background:#3B1719;color:#FF9A9A}.pill.info{background:#18264A;color:#9DBBFF}
+.bar{height:8px;border-radius:999px;background:#1D2433;overflow:hidden}
+.bar>div{height:100%;border-radius:999px;background:#7EA6FF}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:14px;border:none;font:600 15px Inter,sans-serif;cursor:pointer;padding:0 16px}
+.btn.pri{background:#7EA6FF;color:#0B0E13}
+.btn.sec{background:#1A2130;color:#E6EAF2;border:1px solid #2A3345}
+.btn.sm{min-height:36px;font-size:13px;border-radius:10px;padding:0 12px}
+.icon-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:#C9D1E0;cursor:pointer;border-radius:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:36px;padding:0 13px;border-radius:999px;border:1px solid #2A3345;background:#141A26;color:#C9D1E0;font:500 13px Inter,sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px}
+.chip.on{background:#7EA6FF;color:#0B0E13;border-color:#7EA6FF;font-weight:600}
+.seg{display:flex;background:#121721;border:1px solid #222A39;border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;min-height:38px;border:none;border-radius:9px;background:transparent;color:#8E98AB;font:600 13px Inter,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button.on{background:#222B3D;color:#E6EAF2}
+.field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.field label{font-size:12px;color:#8E98AB;font-weight:500}
+.field input,.field textarea{background:#0B0E13;border:1px solid #2A3345;border-radius:10px;color:#E6EAF2;font:500 16px 'JetBrains Mono',monospace;padding:11px 12px;min-height:22px;outline:none;width:100%;box-sizing:border-box}
+.field textarea{font:400 14px Inter,sans-serif;min-height:64px;resize:none}
+.field input:focus,.field textarea:focus{border-color:#7EA6FF}
+.trow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#121721;border:1px solid #222A39;cursor:pointer;text-decoration:none;color:inherit;width:100%;box-sizing:border-box;font:inherit;text-align:left}
+.tk{width:44px;height:44px;border-radius:12px;background:#1A2130;display:flex;align-items:center;justify-content:center;font:700 12px 'JetBrains Mono',monospace;flex:none;color:#C9D1E0}
+.tabbar{height:76px;flex:none;border-top:1px solid #1A2130;background:#0E121A;display:flex;align-items:flex-start;justify-content:space-around;padding-top:8px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:#7C8699;font:600 11px Inter,sans-serif;cursor:pointer;min-width:56px;min-height:48px}
+.tab.on{color:#E6EAF2}
+.tab.on svg{color:#7EA6FF}
+.fab{width:56px;height:56px;border-radius:18px;background:#7EA6FF;color:#0B0E13;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:-4px;box-shadow:0 6px 18px rgba(126,166,255,0.35)}
+.check{display:flex;align-items:center;gap:10px;min-height:44px;width:100%;background:none;border:none;color:#E6EAF2;font:400 14px Inter,sans-serif;cursor:pointer;text-align:left;padding:0}
+.box{width:22px;height:22px;border-radius:7px;border:1.5px solid #3A4458;display:flex;align-items:center;justify-content:center;flex:none}
+.box.on{background:#36D399;border-color:#36D399;color:#0B0E13}
+.box.off{background:#3B1719;border-color:#FF8080;color:#FF8080}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:#0F131B;border:1px solid #1E2635;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.stat b{font:600 15px 'JetBrains Mono',monospace}
+.cal{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.day{height:52px;border-radius:10px;background:#0F131B;border:1px solid #1E2635;padding:6px;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box}
+.day.w{background:#0F2A20;border-color:#1D5A41}.day.l{background:#2C1416;border-color:#5C2629}.day.x{opacity:0.45}.day.today{border-color:#7EA6FF}
+.day span{font-size:10px;color:#8E98AB}.day b{font:600 11px 'JetBrains Mono',monospace}
+.ai{background:linear-gradient(#141C2E,#121721);border:1px solid #2B3A63}
+.toast{position:absolute;left:16px;right:16px;bottom:92px;background:#E6EAF2;color:#0B0E13;border-radius:14px;padding:14px 16px;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.switch{width:46px;height:28px;border-radius:999px;background:#2A3345;border:none;position:relative;cursor:pointer;flex:none}
+.switch.on{background:#36D399}
+.switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+.switch.on i{left:21px}
+.drop{border:1.5px dashed #34405A;border-radius:14px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.list{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:6px;line-height:1.45}
+.kv{display:flex;flex-direction:column;gap:2px}
+.kv span{font-size:11px;color:#8E98AB}
+.kv b{font:600 14px 'JetBrains Mono',monospace}
+</style>
+</helmet>
+<div class="app">
+
+<div class="hdr">
+<sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+<button class="icon-btn" onClick="{{ goBack }}" aria-label="Back" style="margin-left: -12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+</sc-if>
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}"><svg width="34" height="34" viewBox="0 0 200 200" aria-hidden="true" style="margin-right: 10px; flex: none"><rect width="200" height="200" rx="44" fill="#000000"></rect><ellipse cx="104" cy="170" rx="46" ry="6" fill="#1E2633"></ellipse><g transform="translate(10 10) scale(0.9)"><g stroke="#13213D" stroke-width="3.5" stroke-linejoin="round"><path d="M60 70 L80 100 L80 140 L60 110 Z" fill="#23864A"></path><path d="M80 100 L160 88 L160 128 L80 140 Z" fill="#2FA65A"></path><path d="M60 70 L140 58 L160 88 L80 100 Z" fill="#3CC46D"></path></g><g stroke="#13213D" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M80 105.7 L160 93.7 M80 111.4 L160 99.4 M80 117.1 L160 105.1 M80 122.8 L160 110.8 M80 128.5 L160 116.5 M80 134.2 L160 122.2 M60 75.7 L80 105.7 M60 81.4 L80 111.4 M60 87.1 L80 117.1 M60 92.8 L80 122.8 M60 98.5 L80 128.5 M60 104.2 L80 134.2"></path></g><ellipse cx="88" cy="82" rx="9" ry="5.5" fill="#86E6AC" transform="rotate(-8 88 82)"></ellipse><ellipse cx="133" cy="75" rx="9" ry="5.5" fill="#86E6AC" transform="rotate(-8 133 75)"></ellipse><g stroke="#13213D" stroke-width="3" stroke-linejoin="round"><path d="M93.6 65 L106.4 63 L126.4 93 L113.6 95 Z" fill="#F4F7FB"></path><path d="M113.6 95 L126.4 93 L126.4 133 L113.6 135 Z" fill="#D5E2F0"></path></g><g stroke="#13213D" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"><path d="M64 94 C50 78 30 72 10 80 C16 85 22 88 27 90 C18 92 12 97 12 101 C21 102 28 101 35 100 C30 104 30 109 33 112 C45 110 56 105 64 100 Z" fill="#FFFFFF"></path><path d="M156 94 C168 78 186 70 198 76 C194 82 190 86 184 89 C192 90 197 95 197 99 C189 101 182 101 175 101 C180 105 180 110 177 113 C165 111 160 106 156 102 Z" fill="#FFFFFF"></path></g><g fill="#CFE3F7"><path d="M35 104 C44 104 54 102 62 100 C56 105 45 109 35 110 Z"></path><path d="M177 104 C170 104 163 103 158 101 C162 105 168 108 176 110 Z"></path></g><g stroke="#13213D" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M27 90 C38 90 50 92 60 96 M35 100 C44 99 54 99 62 99 M184 89 C174 89 164 92 158 96 M175 101 C168 100 162 100 157 99"></path></g></g></svg></sc-if>
+<h1 style="flex: 1">{{ title }}</h1>
+<button class="icon-btn" onClick="{{ goDad }}" aria-label="Dad's view"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"></path><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"></path></svg></button>
+</div>
+
+<div class="scroll">
+
+<!-- ================= HOME ================= -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div class="card" style="gap: 14px">
+<div class="row">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="lbl">ROAD TO A REAL ACCOUNT</span>
+<span style="font-size: 20px; font-weight: 700">Month 1 of 3 · Day 25 of 90</span>
+</div>
+<span class="pill ok">On track</span>
+</div>
+<div class="bar"><div style="width: 28%"></div></div>
+<div class="muted" style="font-size: 12px">Hit all 4 targets by <b style="color: #E6EAF2">3 Feb 2027</b> and Dad opens your real account.</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{ targets }}" as="t" hint-placeholder-count="4">
+<div class="row" style="padding: 10px 0; border-top: 1px solid #1E2635; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+<span style="font-weight: 600">{{ t.name }}</span>
+<span class="muted" style="font-size: 12px; line-height: 1.4">{{ t.hint }}</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex: none">
+<span class="num" style="font-size: 13px">{{ t.value }}</span>
+<span class="pill {{ t.cls }}">{{ t.status }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="row"><span class="lbl">Trades logged</span><span class="num" style="font-size: 13px">10 / 30</span></div>
+<div class="bar"><div style="width: 33%; background: #36D399"></div></div>
+</div>
+</div>
+
+<div class="grid2">
+<div class="card" style="gap: 4px; padding: 14px">
+<span class="lbl">Paper account</span>
+<span class="num" style="font-size: 20px; font-weight: 600">£519.50</span>
+<span class="num up" style="font-size: 12px">+£19.50 · +3.9%</span>
+</div>
+<div class="card" style="gap: 4px; padding: 14px">
+<span class="lbl">Risk per trade (1%)</span>
+<span class="num" style="font-size: 20px; font-weight: 600">£5.20</span>
+<span class="muted" style="font-size: 12px">max you can lose</span>
+</div>
+</div>
+
+<button class="btn pri" onClick="{{ goLog }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Log a trade</button>
+
+<div class="card ai">
+<div class="row" style="justify-content: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9DBBFF" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg><span style="font-weight: 700; color: #9DBBFF">Coach spotted a pattern</span></div>
+<div style="line-height: 1.5">Trades with a <b>liquidity sweep first</b> won 5 of 6. Trades <b>without one</b> lost 4 of 4. Wait for the sweep.</div>
+<button class="btn sec sm" onClick="{{ goPlaybook }}" style="align-self: flex-start">Open my playbook</button>
+</div>
+
+<div class="row"><span class="h2">Open trade</span></div>
+<button class="trow" onClick="{{ openFirst.open }}">
+<div class="tk">{{ openFirst.tk }}</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><b>{{ openFirst.tk }} · Long</b><span class="muted" style="font-size: 12px">{{ openFirst.setup }} · since {{ openFirst.opened }}</span></div>
+<span class="pill info">Open</span>
+</button>
+
+<div class="row"><span class="h2">Recent trades</span><button class="btn sec sm" onClick="{{ goTrades }}">See all</button></div>
+<sc-for list="{{ recent }}" as="t" hint-placeholder-count="3">
+<button class="trow" onClick="{{ t.open }}">
+<div class="tk">{{ t.tk }}</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><b>{{ t.tk }} · {{ t.setup }}</b><span class="muted" style="font-size: 12px">Closed {{ t.closed }} · {{ t.emo }}</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span class="num {{ t.cls }}" style="font-weight: 600">{{ t.pnlStr }}</span><span class="num muted" style="font-size: 12px">{{ t.rStr }}</span></div>
+</button>
+</sc-for>
+</sc-if>
+
+<!-- ================= LOG ================= -->
+<sc-if value="{{ isLog }}" hint-placeholder-val="{{ false }}">
+<div class="seg" role="tablist">
+<button class="{{ segQuick }}" onClick="{{ modeQuick }}">Quick add</button>
+<button class="{{ segShot }}" onClick="{{ modeShot }}">Screenshot</button>
+<button class="{{ segCsv }}" onClick="{{ modeCsv }}">CSV import</button>
+</div>
+
+<sc-if value="{{ isQuick }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ fromShot }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #10231B; border-color: #1D5A41; flex-direction: row; align-items: center; padding: 12px 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5BE3AB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg><span style="font-size: 13px">Filled from your screenshot. Check the numbers, then save.</span></div>
+</sc-if>
+<div class="card">
+<div class="field"><label for="tk">Ticker</label><input id="tk" value="{{ f.tk }}" onChange="{{ setTk }}" autocomplete="off"></div>
+<div class="chips"><sc-for list="{{ tickChips }}" as="c" hint-placeholder-count="5"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+<div class="seg"><button class="{{ dirLong }}" onClick="{{ setLong }}">Long (buy)</button><button class="{{ dirShort }}" onClick="{{ setShort }}">Short (sell)</button></div>
+<div style="display: flex; gap: 10px">
+<div class="field"><label for="en">Entry $</label><input id="en" inputmode="decimal" value="{{ f.entry }}" onChange="{{ setEntry }}"></div>
+<div class="field"><label for="st">Stop $</label><input id="st" inputmode="decimal" value="{{ f.stop }}" onChange="{{ setStop }}"></div>
+<div class="field"><label for="tp">Target $</label><input id="tp" inputmode="decimal" value="{{ f.tp }}" onChange="{{ setTp }}"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Risk</span>
+<div class="chips"><sc-for list="{{ riskChips }}" as="c" hint-placeholder-count="3"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+</div>
+<div style="background: #0B0E13; border: 1px solid #222A39; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div class="row"><span class="lbl">AUTO-CALCULATED</span><span class="pill {{ calc.rrCls }}">{{ calc.rrLabel }}</span></div>
+<div class="grid3">
+<div class="kv"><span>Buy this many</span><b>{{ calc.shares }}</b></div>
+<div class="kv"><span>You risk</span><b>{{ calc.risk }}</b></div>
+<div class="kv"><span>Could make</span><b class="up">{{ calc.reward }}</b></div>
+</div>
+<sc-if value="{{ calc.tooBig }}" hint-placeholder-val="{{ false }}"><div class="pill warn" style="white-space: normal; border-radius: 10px; padding: 8px 10px">Position is bigger than your account. Use a wider stop or a cheaper share.</div></sc-if>
+</div>
+</div>
+
+<div class="card">
+<div class="row"><span class="h2">Setup</span><button class="btn sec sm" onClick="{{ goPlaybook }}">See examples</button></div>
+<div class="chips"><sc-for list="{{ setupChips }}" as="c" hint-placeholder-count="3"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+</div>
+
+<div class="card" style="gap: 4px">
+<div class="row" style="margin-bottom: 6px"><span class="h2">My rules</span><span class="num muted" style="font-size: 12px">{{ rulesDone }}</span></div>
+<sc-for list="{{ ruleChecks }}" as="r" hint-placeholder-count="5">
+<button class="check" onClick="{{ r.toggle }}"><span class="box {{ r.cls }}"><sc-if value="{{ r.on }}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></sc-if></span>{{ r.text }}</button>
+</sc-for>
+</div>
+
+<div class="card">
+<span class="h2">How do you feel?</span>
+<div class="chips"><sc-for list="{{ emoChips }}" as="c" hint-placeholder-count="6"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+<div class="field"><label for="nt">Notes (optional)</label><textarea id="nt" placeholder="Why this trade? What's the plan?" value="{{ f.note }}" onChange="{{ setNote }}"></textarea></div>
+<button class="btn sec" onClick="{{ modeShot }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"></rect><circle cx="12" cy="13" r="3.5"></circle><path d="M8 6l1.5-2h5L16 6"></path></svg>Attach chart screenshot</button>
+</div>
+<button class="btn pri" onClick="{{ save }}">Save trade</button>
+</sc-if>
+
+<sc-if value="{{ isShot }}" hint-placeholder-val="{{ false }}">
+<div class="card">
+<span class="h2">Auto-fill from a TradingView chart</span>
+<span class="muted" style="line-height: 1.5">Take a screenshot of your chart with the Long/Short position tool on it. We read the ticker, entry, stop and target for you.</span>
+<sc-if value="{{ shotIdle }}" hint-placeholder-val="{{ true }}">
+<div class="drop">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#7EA6FF" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"></rect><circle cx="12" cy="13" r="3.5"></circle><path d="M8 6l1.5-2h5L16 6"></path></svg>
+<b>Choose a screenshot</b>
+<span class="muted" style="font-size: 12px">or paste one (Ctrl + V on laptop)</span>
+<button class="btn pri sm" onClick="{{ readShot }}">Choose from photos</button>
+</div>
+</sc-if>
+<sc-if value="{{ shotReading }}" hint-placeholder-val="{{ false }}">
+<div class="drop"><b>Reading your chart…</b><div class="bar" style="width: 70%"><div style="width: 60%"></div></div></div>
+</sc-if>
+<sc-if value="{{ shotDone }}" hint-placeholder-val="{{ false }}">
+<div style="border-radius: 12px; overflow: hidden; border: 1px solid #222A39; background: #0B0E13">
+<svg width="100%" viewBox="0 0 340 150" role="img" aria-label="Your NVDA chart screenshot with a long position drawn on it">
+<rect x="230" y="{{ win.tpY }}" width="104" height="{{ win.rewardH }}" fill="#36D399" fill-opacity="0.16"></rect>
+<rect x="230" y="{{ win.enY }}" width="104" height="{{ win.riskH }}" fill="#FF8080" fill-opacity="0.18"></rect>
+<path d="{{ win.c.wick }}" stroke="#5B6478" stroke-width="1"></path>
+<path d="{{ win.c.bull }}" fill="#36D399"></path>
+<path d="{{ win.c.bear }}" fill="#FF8080"></path>
+<text x="8" y="14" fill="#C9D1E0" font-size="10" font-family="Inter">NVDA · 1D · TradingView</text>
+</svg>
+</div>
+<div class="row" style="justify-content: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5BE3AB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg><b>Found 4 things</b></div>
+<div class="grid2">
+<div class="stat"><span class="lbl">Ticker</span><b>NVDA · Long</b></div>
+<div class="stat"><span class="lbl">Entry</span><b>$186.20</b></div>
+<div class="stat"><span class="lbl">Stop</span><b class="dn">$182.20</b></div>
+<div class="stat"><span class="lbl">Target</span><b class="up">$196.00</b></div>
+</div>
+<button class="btn pri" onClick="{{ useShot }}">Use these and finish logging</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCsv }}" hint-placeholder-val="{{ false }}">
+<div class="card">
+<span class="h2">Import a CSV</span>
+<span class="muted" style="line-height: 1.5">Export your history from TradingView Paper Trading (or your broker later) and drop it here. Buys and sells are matched into trades automatically.</span>
+<sc-if value="{{ csvIdle }}" hint-placeholder-val="{{ true }}">
+<div class="drop">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#7EA6FF" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 14h6M9 17h4"></path></svg>
+<b>Choose a .csv file</b>
+<div class="chips" style="justify-content: center"><span class="pill info">TradingView</span><span class="pill info">Interactive Brokers</span></div>
+<button class="btn pri sm" onClick="{{ readCsv }}">Choose file</button>
+</div>
+</sc-if>
+<sc-if value="{{ csvPreview }}" hint-placeholder-val="{{ false }}">
+<div class="row"><b>3 new trades found</b><span class="pill ok">2 duplicates skipped</span></div>
+<sc-for list="{{ csvRows }}" as="r" hint-placeholder-count="3">
+<div class="row" style="padding: 10px 12px; background: #0B0E13; border: 1px solid #222A39; border-radius: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px"><b class="num">{{ r.tk }}</b><span class="muted" style="font-size: 12px">{{ r.d }}</span></div>
+<span class="num {{ r.cls }}" style="font-weight: 600">{{ r.p }}</span>
+</div>
+</sc-for>
+<span class="muted" style="font-size: 12px">After importing, add the setup and how you felt to each one (takes 10 seconds each).</span>
+<button class="btn pri" onClick="{{ importCsv }}">Import 3 trades</button>
+</sc-if>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- ================= TRADES ================= -->
+<sc-if value="{{ isTrades }}" hint-placeholder-val="{{ false }}">
+<div class="chips"><sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="4"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+<sc-for list="{{ tradeList }}" as="t" hint-placeholder-count="6">
+<button class="trow" onClick="{{ t.open }}">
+<div class="tk">{{ t.tk }}</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><b>{{ t.tk }} · {{ t.setup }}</b><span class="muted" style="font-size: 12px">{{ t.when }} · {{ t.emo }}</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span class="num {{ t.cls }}" style="font-weight: 600">{{ t.pnlStr }}</span><span class="pill {{ t.gradeCls }}">{{ t.gradeLabel }}</span></div>
+</button>
+</sc-for>
+</sc-if>
+
+<!-- ================= DETAIL ================= -->
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div class="row" style="align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">{{ d.tk }} · {{ d.dir }} · {{ d.setup }}</span><span class="big num {{ d.cls }}">{{ d.pnlStr }}</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span class="num {{ d.cls }}" style="font-weight: 600">{{ d.rStr }}</span><span class="muted" style="font-size: 12px">{{ d.when }}</span></div>
+</div>
+
+<div style="border-radius: 14px; overflow: hidden; border: 1px solid #222A39; background: #0B0E13">
+<svg width="100%" viewBox="0 0 340 150" role="img" aria-label="Chart screenshot with entry, stop and target lines">
+<path d="{{ dc.c.wick }}" stroke="#5B6478" stroke-width="1"></path>
+<path d="{{ dc.c.bull }}" fill="#36D399"></path>
+<path d="{{ dc.c.bear }}" fill="#FF8080"></path>
+<line x1="0" x2="340" y1="{{ dc.tpY }}" y2="{{ dc.tpY }}" stroke="#36D399" stroke-dasharray="4 3"></line>
+<line x1="0" x2="340" y1="{{ dc.enY }}" y2="{{ dc.enY }}" stroke="#7EA6FF" stroke-dasharray="4 3"></line>
+<line x1="0" x2="340" y1="{{ dc.stY }}" y2="{{ dc.stY }}" stroke="#FF8080" stroke-dasharray="4 3"></line>
+<text x="336" y="{{ dc.tpTY }}" fill="#36D399" font-size="9" text-anchor="end" font-family="JetBrains Mono">TARGET</text>
+<text x="336" y="{{ dc.enTY }}" fill="#9DBBFF" font-size="9" text-anchor="end" font-family="JetBrains Mono">ENTRY</text>
+<text x="336" y="{{ dc.stTY }}" fill="#FF9A9A" font-size="9" text-anchor="end" font-family="JetBrains Mono">STOP</text>
+<circle cx="{{ dc.enX }}" cy="{{ dc.enY }}" r="4" fill="#7EA6FF"></circle>
+</svg>
+</div>
+
+<div class="card">
+<div class="grid3">
+<div class="kv"><span>Entry</span><b>{{ d.entryS }}</b></div>
+<div class="kv"><span>Exit</span><b>{{ d.exitS }}</b></div>
+<div class="kv"><span>Size</span><b>{{ d.shares }}</b></div>
+<div class="kv"><span>Stop</span><b class="dn">{{ d.stopS }}</b></div>
+<div class="kv"><span>Target</span><b class="up">{{ d.tpS }}</b></div>
+<div class="kv"><span>Risk</span><b>{{ d.riskS }}</b></div>
+</div>
+<div class="chips"><span class="pill info">{{ d.setup }}</span><span class="pill {{ d.emoCls }}">Felt: {{ d.emo }}</span><span class="pill {{ d.rulesCls }}">Rules {{ d.rulesN }}</span></div>
+</div>
+
+<div class="card ai">
+<div class="row">
+<div class="row" style="justify-content: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9DBBFF" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path></svg><span style="font-weight: 700; color: #9DBBFF">AI coach review</span></div>
+<span class="num" style="font-size: 22px; font-weight: 700; color: {{ d.gradeColor }}">{{ d.grade }}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="color: #5BE3AB">WHAT WENT WELL</span><span style="line-height: 1.5">{{ d.good }}</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="color: #F5C866">FIX NEXT TIME</span><span style="line-height: 1.5">{{ d.fix }}</span></div>
+<button class="btn sec sm" style="align-self: flex-start">Ask the coach a question</button>
+</div>
+
+<div class="card" style="gap: 4px">
+<span class="h2" style="margin-bottom: 6px">Rule checklist</span>
+<sc-for list="{{ d.ruleList }}" as="r" hint-placeholder-count="5">
+<div class="check" style="cursor: default"><span class="box {{ r.cls }}"><sc-if value="{{ r.on }}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></sc-if><sc-if value="{{ r.off }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></sc-if></span>{{ r.text }}</div>
+</sc-for>
+</div>
+
+<div class="card"><span class="h2">Notes</span><span style="line-height: 1.5; color: #C9D1E0">{{ d.note }}</span></div>
+</sc-if>
+
+<!-- ================= PLAYBOOK ================= -->
+<sc-if value="{{ isPlaybook }}" hint-placeholder-val="{{ false }}">
+<div class="muted" style="line-height: 1.5">My strategy, step by step: read the market, find the setup, check the news.</div>
+<div class="seg"><sc-for list="{{ pbTabs }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+
+<sc-if value="{{ pbIsNews }}" hint-placeholder-val="{{ false }}">
+<div class="chips"><sc-for list="{{ newsTabs }}" as="c" hint-placeholder-count="3"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div>
+
+<div class="card" style="border-color: {{ nd.vBorder }}; background: {{ nd.vBg }}">
+<span class="lbl">SHOULD I TRADE TODAY?</span>
+<div class="row" style="justify-content: flex-start; gap: 12px">
+<span style="width: 14px; height: 14px; border-radius: 50%; background: {{ nd.vColor }}; flex: none"></span>
+<span style="font-size: 24px; font-weight: 700; color: {{ nd.vColor }}">{{ nd.verdict }}</span>
+</div>
+<span style="line-height: 1.5">{{ nd.why }}</span>
+</div>
+
+<div class="card">
+<div class="row"><span class="h2">US market hours</span><span class="pill {{ nd.hoursCls }}">{{ nd.hoursPill }}</span></div>
+<div class="grid2">
+<div class="stat"><span class="lbl">Opens (UK time)</span><b>14:30</b></div>
+<div class="stat"><span class="lbl">Closes (UK time)</span><b>{{ nd.close }}</b></div>
+</div>
+</div>
+
+<div class="card">
+<div class="row"><span class="h2">Today's timeline</span><span class="lbl">UK time</span></div>
+<div style="position: relative; height: 28px; border-radius: 8px; background: #0B0E13; border: 1px solid #222A39; overflow: hidden">
+<sc-for list="{{ nd.strip }}" as="s" hint-placeholder-count="6">
+<div style="position: absolute; top: 0; bottom: 0; left: {{ s.l }}; width: {{ s.w }}; background: {{ s.bg }}; border-right: 1px solid #0B0E13"></div>
+</sc-for>
+</div>
+<div class="row num muted" style="font-size: 10px; margin-top: -6px"><span>13:00</span><span>15:00</span><span>17:00</span><span>19:00</span><span>21:00</span></div>
+<div class="chips" style="gap: 12px"><span class="row" style="gap: 6px; font-size: 11px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #36D399"></span>Best time</span><span class="row" style="gap: 6px; font-size: 11px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #7EA6FF"></span>OK</span><span class="row" style="gap: 6px; font-size: 11px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #4A5468"></span>Quiet</span><span class="row" style="gap: 6px; font-size: 11px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #FF8080"></span>Hands off</span></div>
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{ nd.tl }}" as="s" hint-placeholder-count="6">
+<div style="display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid #1E2635">
+<span style="width: 4px; border-radius: 4px; background: {{ s.bg }}; flex: none"></span>
+<span class="num" style="font-size: 12px; width: 82px; flex: none; color: #C9D1E0; padding-top: 1px">{{ s.t }}</span>
+<div style="display: flex; flex-direction: column; gap: 3px; min-width: 0"><b style="font-size: 14px; color: {{ s.fg }}">{{ s.name }}</b><span class="muted" style="font-size: 12px; line-height: 1.45">{{ s.desc }}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div class="card" style="gap: 4px">
+<div class="row" style="margin-bottom: 6px"><span class="h2">News that moves markets</span><span class="lbl">UK time</span></div>
+<sc-for list="{{ nd.events }}" as="e" hint-placeholder-count="2">
+<div style="display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid #1E2635">
+<span class="num" style="font-size: 13px; width: 44px; flex: none; color: #C9D1E0">{{ e.t }}</span>
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1">
+<div class="row"><b style="font-size: 14px">{{ e.name }}</b><span class="pill {{ e.cls }}">{{ e.impact }}</span></div>
+<span class="muted" style="font-size: 12px; line-height: 1.45">{{ e.plain }}</span>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{ nd.noEvents }}" hint-placeholder-val="{{ false }}"><div class="muted" style="padding: 10px 0; border-top: 1px solid #1E2635">No big news today.</div></sc-if>
+</div>
+
+<div class="card" style="gap: 4px">
+<div class="row" style="margin-bottom: 6px"><span class="h2">Earnings on my watchlist</span><span class="lbl">next 2 days</span></div>
+<sc-for list="{{ nd.earnings }}" as="e" hint-placeholder-count="4">
+<div class="row" style="padding: 8px 0; border-top: 1px solid #1E2635"><span class="num" style="font-weight: 600">{{ e.tk }}</span><span class="pill {{ e.cls }}">{{ e.txt }}</span></div>
+</sc-for>
+<span class="muted" style="font-size: 12px; line-height: 1.45; margin-top: 6px">Your rule: no trades with earnings in the next 2 days. Earnings can make a share jump past your stop overnight.</span>
+</div>
+
+<div class="card ai">
+<div class="row" style="justify-content: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9DBBFF" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path></svg><span style="font-weight: 700; color: #9DBBFF">Coach's game plan</span></div>
+<span style="line-height: 1.5">{{ nd.plan }}</span>
+</div>
+<span class="muted" style="font-size: 12px; line-height: 1.45">Sample data. The real app fills this in each morning from a live news calendar and earnings dates, and sends you a phone alert by 08:00.</span>
+</sc-if>
+
+<sc-if value="{{ pbIsBias }}" hint-placeholder-val="{{ true }}">
+<div class="card">
+<span class="h2" style="font-size: 18px">Step 1: Read the market</span>
+<span style="line-height: 1.5; color: #C9D1E0">Do this the evening before, on the daily chart. No clear bias means no trade.</span>
+<div style="border-radius: 12px; border: 1px solid #222A39; background: #0B0E13">
+<svg width="100%" viewBox="0 0 340 132" role="img" aria-label="An uptrend makes higher highs and higher lows: look for buys. A downtrend makes lower highs and lower lows: sit out for now.">
+<text x="12" y="18" fill="#5BE3AB" font-size="10.5" font-weight="600" font-family="Inter">Uptrend: look for buys</text>
+<polyline points="14,112 44,78 62,94 96,56 116,74 152,32" fill="none" stroke="#36D399" stroke-width="2" stroke-linejoin="round"></polyline>
+<text x="54" y="108" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">HL</text>
+<text x="86" y="50" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">HH</text>
+<text x="108" y="88" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">HL</text>
+<text x="138" y="28" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">HH</text>
+<line x1="170" x2="170" y1="10" y2="122" stroke="#222A39"></line>
+<text x="182" y="18" fill="#FF9A9A" font-size="10.5" font-weight="600" font-family="Inter">Downtrend: sit out</text>
+<polyline points="184,34 214,68 232,52 266,90 286,74 322,114" fill="none" stroke="#FF8080" stroke-width="2" stroke-linejoin="round"></polyline>
+<text x="224" y="46" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">LH</text>
+<text x="256" y="104" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">LL</text>
+<text x="278" y="68" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">LH</text>
+<text x="300" y="126" fill="#C9D1E0" font-size="9" font-family="JetBrains Mono">LL</text>
+</svg>
+</div>
+<span class="muted" style="font-size: 12px; line-height: 1.45">HH = higher high, HL = higher low, LH = lower high, LL = lower low.</span>
+</div>
+
+<div class="card">
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">SPY daily trend</span><div class="chips"><sc-for list="{{ biasChips }}" as="c" hint-placeholder-count="3"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">Where is price in its recent range?</span><div class="chips"><sc-for list="{{ zoneChips }}" as="c" hint-placeholder-count="2"><button class="chip {{ c.cls }}" onClick="{{ c.pick }}">{{ c.name }}</button></sc-for></div><span class="muted" style="font-size: 12px; line-height: 1.45">Discount = bottom half of the range (cheap, good for buys). Premium = top half (expensive).</span></div>
+<div style="display: flex; gap: 10px"><div class="field"><label for="bh">Old high above $</label><input id="bh" inputmode="decimal" value="{{ bHi }}" onChange="{{ setHi }}"></div><div class="field"><label for="bl">Old low below $</label><input id="bl" inputmode="decimal" value="{{ bLo }}" onChange="{{ setLo }}"></div></div>
+<span class="muted" style="font-size: 12px; line-height: 1.45">Liquidity: stop orders pile up just past old highs and lows, and price often runs to grab them.</span>
+</div>
+
+<div class="card" style="border-color: {{ bv.border }}; background: {{ bv.bg }}">
+<span class="lbl">MY BIAS FOR TOMORROW</span>
+<span style="font-size: 24px; font-weight: 700; color: {{ bv.color }}">{{ bv.title }}</span>
+<span style="line-height: 1.5">{{ bv.why }}</span>
+</div>
+<button class="btn pri" onClick="{{ toSetup }}">Next: Step 2, find the setup</button>
+</sc-if>
+
+<sc-if value="{{ pbIsSetup }}" hint-placeholder-val="{{ false }}">
+
+<div class="card">
+<div class="row"><span class="h2" style="font-size: 18px">{{ pb.name }}</span><span class="pill {{ pb.pillCls }}">{{ pb.pill }}</span></div>
+<span style="line-height: 1.5; color: #C9D1E0">{{ pb.oneLiner }}</span>
+<div style="border-radius: 12px; overflow: hidden; border: 1px solid #222A39; background: #0B0E13">
+<svg width="100%" viewBox="0 0 340 190" role="img" aria-label="{{ pb.alt }}">
+<rect x="{{ pb.ex.fvgX }}" y="{{ pb.ex.fvgY }}" width="{{ pb.ex.fvgW }}" height="{{ pb.ex.fvgH }}" fill="#7EA6FF" fill-opacity="0.2"></rect>
+<line x1="0" x2="340" y1="{{ pb.ex.tpY }}" y2="{{ pb.ex.tpY }}" stroke="#36D399" stroke-dasharray="4 3"></line>
+<line x1="0" x2="340" y1="{{ pb.ex.stY }}" y2="{{ pb.ex.stY }}" stroke="#FF8080" stroke-dasharray="4 3"></line>
+<line x1="{{ pb.ex.lowX1 }}" x2="{{ pb.ex.lowX2 }}" y1="{{ pb.ex.lowY }}" y2="{{ pb.ex.lowY }}" stroke="#F5C866" stroke-width="1.2" stroke-dasharray="3 2"></line>
+<line x1="{{ pb.ex.bosX1 }}" x2="{{ pb.ex.bosX2 }}" y1="{{ pb.ex.bosY }}" y2="{{ pb.ex.bosY }}" stroke="#E6EAF2" stroke-width="1"></line>
+<path d="{{ pb.ex.c.wick }}" stroke="#5B6478" stroke-width="1"></path>
+<path d="{{ pb.ex.c.bull }}" fill="#36D399"></path>
+<path d="{{ pb.ex.c.bear }}" fill="#FF8080"></path>
+<circle cx="{{ pb.ex.enX }}" cy="{{ pb.ex.enY }}" r="5" fill="none" stroke="#E6EAF2" stroke-width="1.5"></circle>
+<text x="{{ pb.ex.enLX }}" y="{{ pb.ex.enLY }}" fill="#E6EAF2" font-size="10" font-weight="600" font-family="Inter">Buy here</text>
+<text x="{{ pb.ex.bosX1 }}" y="{{ pb.ex.bosTY }}" fill="#E6EAF2" font-size="9" font-weight="600" font-family="JetBrains Mono">BOS</text>
+<text x="{{ pb.ex.swX }}" y="{{ pb.ex.swY }}" fill="#F5C866" font-size="9.5" font-weight="600" font-family="Inter">Sweep</text>
+<text x="336" y="{{ pb.ex.fvgTY }}" fill="#9DBBFF" font-size="9" text-anchor="end" font-family="JetBrains Mono">GAP (FVG)</text>
+<text x="120" y="{{ pb.ex.ohY }}" fill="#36D399" font-size="9.5" font-family="Inter">Old high = target</text>
+<text x="336" y="{{ pb.ex.stTY }}" fill="#FF9A9A" font-size="9" text-anchor="end" font-family="JetBrains Mono">STOP</text>
+</svg>
+</div>
+<span class="muted" style="font-size: 12px">Example chart. You can swap in your own best trade screenshot.</span>
+</div>
+
+<div class="card" style="gap: 4px">
+<span class="h2" style="margin-bottom: 6px">What I look for</span>
+<sc-for list="{{ pb.look }}" as="l" hint-placeholder-count="4">
+<div class="check" style="cursor: default; align-items: flex-start; min-height: 0; padding: 6px 0"><span class="box on" style="width: 20px; height: 20px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span><span style="line-height: 1.45">{{ l }}</span></div>
+</sc-for>
+</div>
+
+<div class="card">
+<div class="grid3">
+<div class="kv"><span>Entry</span><b style="font: 500 13px Inter, sans-serif; line-height: 1.4">{{ pb.entry }}</b></div>
+<div class="kv"><span>Stop</span><b style="font: 500 13px Inter, sans-serif; line-height: 1.4">{{ pb.stop }}</b></div>
+<div class="kv"><span>Target</span><b style="font: 500 13px Inter, sans-serif; line-height: 1.4">{{ pb.target }}</b></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="color: #FF9A9A">SKIP IT IF</span><span style="line-height: 1.5">{{ pb.avoid }}</span></div>
+</div>
+
+<div class="card ai">
+<div class="row"><span style="font-weight: 700; color: #9DBBFF">Your results with this setup</span><span class="num {{ pb.resCls }}" style="font-weight: 600">{{ pb.resPnl }}</span></div>
+<div class="grid3">
+<div class="stat"><span class="lbl">Trades</span><b>{{ pb.n }}</b></div>
+<div class="stat"><span class="lbl">Won</span><b>{{ pb.wins }}</b></div>
+<div class="stat"><span class="lbl">Avg</span><b class="{{ pb.resCls }}">{{ pb.avgR }}</b></div>
+</div>
+<span style="line-height: 1.5">{{ pb.coach }}</span>
+</div>
+<button class="btn pri" onClick="{{ pb.logIt }}">Log a {{ pb.short }} trade</button>
+<button class="btn sec">+ Add my own setup</button>
+</sc-if>
+</sc-if>
+
+<!-- ================= STATS ================= -->
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+<div class="seg"><button class="on">November</button><button>All time</button></div>
+<div class="grid2">
+<div class="stat"><span class="lbl">Net P&amp;L</span><b class="up">+£19.50</b></div>
+<div class="stat"><span class="lbl">Win rate</span><b>50% <span class="muted" style="font-size: 11px">5 of 10</span></b></div>
+<div class="stat"><span class="lbl">Avg win / avg loss</span><b><span class="up">£9.00</span> / <span class="dn">£5.10</span></b></div>
+<div class="stat"><span class="lbl">Profit factor</span><b>1.76</b></div>
+</div>
+<div class="muted" style="font-size: 12px; line-height: 1.5; margin-top: -4px">Profit factor = money won ÷ money lost. Above 1 means you're making money overall.</div>
+
+<div class="card">
+<div class="row"><span class="h2">Account growth</span><span class="num up" style="font-size: 13px">+3.9%</span></div>
+<svg width="100%" viewBox="0 0 320 100" role="img" aria-label="Equity curve rising from £500 to £519.50 over November">
+<line x1="0" x2="320" y1="{{ eq.zeroY }}" y2="{{ eq.zeroY }}" stroke="#2A3345" stroke-dasharray="3 3"></line>
+<polyline points="{{ eq.area }}" fill="#36D399" fill-opacity="0.12" stroke="none"></polyline>
+<polyline points="{{ eq.line }}" fill="none" stroke="#36D399" stroke-width="2" stroke-linejoin="round"></polyline>
+<text x="2" y="{{ eq.zeroTY }}" fill="#8E98AB" font-size="9" font-family="JetBrains Mono">£500</text>
+</svg>
+</div>
+
+<div class="card">
+<div class="row"><span class="h2">November</span><span class="lbl">by day closed</span></div>
+<div class="cal">
+<sc-for list="{{ calHead }}" as="h" hint-placeholder-count="5"><span class="lbl" style="text-align: center">{{ h }}</span></sc-for>
+<sc-for list="{{ cal }}" as="c" hint-placeholder-count="21">
+<div class="day {{ c.cls }}"><span>{{ c.d }}</span><b class="{{ c.tcls }}">{{ c.p }}</b></div>
+</sc-for>
+</div>
+</div>
+
+<div class="card">
+<span class="h2">By setup</span>
+<sc-for list="{{ bySetup }}" as="s" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="row"><span style="font-weight: 600">{{ s.name }} <span class="muted" style="font-weight: 400; font-size: 12px">{{ s.rec }}</span></span><span class="num {{ s.cls }}" style="font-weight: 600">{{ s.p }}</span></div>
+<div class="bar"><div style="width: {{ s.w }}; background: {{ s.color }}"></div></div>
+</div>
+</sc-for>
+</div>
+
+<div class="card ai">
+<div class="row" style="justify-content: flex-start"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9DBBFF" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"></path></svg><span style="font-weight: 700; color: #9DBBFF">Patterns this month</span></div>
+<ul class="list">
+<li>Sweep first is your edge: 5 wins from 6, +£42.50.</li>
+<li>No sweep lost all 4 (−£23.00). Make "sweep first" a rule.</li>
+<li>Your one rule-break (META, tagged FOMO) was your biggest loss.</li>
+<li>Thursday entries: 3 of 3 losers. Small sample, keep an eye on it.</li>
+</ul>
+</div>
+</sc-if>
+
+<!-- ================= DAD ================= -->
+<sc-if value="{{ isDad }}" hint-placeholder-val="{{ false }}">
+<div class="card">
+<div class="row"><div style="display: flex; flex-direction: column; gap: 3px"><span class="h2">Live link for Dad</span><span class="muted" style="font-size: 12px">Read-only. Updates every time you log a trade.</span></div><button class="switch {{ shareCls }}" onClick="{{ toggleShare }}" aria-label="Turn share link on or off"><i></i></button></div>
+<sc-if value="{{ shareOn }}" hint-placeholder-val="{{ true }}">
+<div class="row" style="background: #0B0E13; border: 1px solid #222A39; border-radius: 12px; padding: 6px 6px 6px 12px"><span class="num muted" style="font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">…/report/x7k2-elijah</span><button class="btn pri sm" onClick="{{ copy }}">{{ copyLabel }}</button></div>
+<div class="row"><span style="font-size: 13px">Show my trade notes</span><button class="switch {{ notesCls }}" onClick="{{ toggleNotes }}" aria-label="Show trade notes to Dad"><i></i></button></div>
+<div class="row"><span style="font-size: 13px">Show AI coach reviews</span><button class="switch {{ aiCls }}" onClick="{{ toggleAi }}" aria-label="Show AI reviews to Dad"><i></i></button></div>
+</sc-if>
+</div>
+
+<span class="lbl" style="margin-top: 4px">PREVIEW: WHAT DAD SEES</span>
+<div class="card" style="background: #F4F6FA; color: #141821; border-color: #F4F6FA">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #4A5468; font-weight: 600">ELIJAH'S PAPER TRADING · LIVE</span><span style="font-size: 20px; font-weight: 700">On track: 3 of 4 targets met</span><span style="font-size: 12px; color: #4A5468">Day 25 of 90 · updated today 21:30</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="background: #E3F6EC; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #1D5C3F; font-weight: 600">NOV</span><b class="num" style="color: #116B43">+3.9%</b></div>
+<div style="background: #E6E9F0; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #4A5468; font-weight: 600">DEC</span><b class="num" style="color: #4A5468">—</b></div>
+<div style="background: #E6E9F0; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #4A5468; font-weight: 600">JAN</span><b class="num" style="color: #4A5468">—</b></div>
+</div>
+<sc-for list="{{ targets }}" as="t" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid #DDE2EB; font-size: 13px"><span>{{ t.name }}</span><b class="num" style="color: {{ t.dadColor }}; white-space: nowrap">{{ t.dadValue }}</b></div>
+</sc-for>
+<div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #DDE2EB; font-size: 13px"><span>Trades so far</span><b class="num">10 of 30</b></div>
+<sc-if value="{{ dadNotes }}" hint-placeholder-val="{{ false }}">
+<div style="background: #fff; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.45; display: flex; flex-direction: column; gap: 4px"><b>Latest: GOOGL, −£5.00</b><span style="color: #4A5468">"Broke out then reversed same day. Took my stop."</span></div>
+</sc-if>
+<sc-if value="{{ dadAi }}" hint-placeholder-val="{{ false }}">
+<div style="background: #fff; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.45"><b>Coach summary:</b> Disciplined month. One rule-break (FOMO). Sweep setup working well.</div>
+</sc-if>
+</div>
+</sc-if>
+
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B43" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>{{ toast }}</div>
+</sc-if>
+
+<nav class="tabbar" aria-label="Main">
+<button class="tab {{ tabHome }}" onClick="{{ goHome }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5V20h-5v-6H9v6H4z"></path></svg>Home</button>
+<button class="tab {{ tabTrades }}" onClick="{{ goTrades }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"></path></svg>Trades</button>
+<button class="fab" onClick="{{ goLog }}" aria-label="Log a trade"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+<button class="tab {{ tabPlaybook }}" onClick="{{ goPlaybook }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg>Playbook</button>
+<button class="tab {{ tabStats }}" onClick="{{ goStats }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>Stats</button>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const FX = 1.27;
+const ACCT = 519.5;
+const RULES = ['Daily bias agrees with the trade', 'Entered at my setup, not chasing', 'Stop set before I entered', 'Risk is 1–2% of my account', 'No earnings or big news in 2 days'];
+const TRADES = [
+  { id: 11, tk: 'AAPL', setup: 'Pullback', opened: '25 Nov', closed: null, entry: 270.10, stop: 266.10, tp: 280.00, exit: null, r: 0, pnl: 0, rules: [1,1,1,1,1], emo: 'Calm', note: 'Pulled back to the 20-day average and bounced. Stop under the low.', grade: '—', good: 'Plan is set before entry: 1% risk, stop $266.10, target $280. Reward is 2.5× the risk.', fix: 'Still open. Leave the stop where it is. The coach will review it fully once you close it.' },
+  { id: 10, tk: 'GOOGL', setup: 'Breakout', opened: '24 Nov', closed: '24 Nov', entry: 302.50, stop: 298.00, tp: 312.00, exit: 298.00, r: -1, pnl: -5, rules: [1,1,1,1,1], emo: 'Calm', note: 'Broke out then reversed same day. Took my stop.', grade: 'B', good: 'Rules followed and the loss was kept to exactly 1R. That is a good loss.', fix: 'This is your 4th breakout loss in a row. The setup, not you, is the problem right now.' },
+  { id: 9, tk: 'QQQ', setup: 'Pullback', opened: '20 Nov', closed: '23 Nov', entry: 608.40, stop: 603.40, tp: 618.00, exit: 615.90, r: 1.5, pnl: 7.5, rules: [1,1,1,1,1], emo: 'Confident', note: 'Clean bounce off the 20-day. Sold before target as Friday faded.', grade: 'A', good: 'Textbook pullback entry. Held through a red day without panicking.', fix: 'You sold 80% of the way to target. Fine, but track how often you exit early.' },
+  { id: 8, tk: 'META', setup: 'Breakout', opened: '18 Nov', closed: '19 Nov', entry: 742.00, stop: 734.50, tp: 760.00, exit: 730.00, r: -1.6, pnl: -8, rules: [1,0,1,1,1], emo: 'FOMO', note: 'Saw it ripping and jumped in. Hoped it would come back instead of selling at my stop.', grade: 'D', good: 'You logged it honestly, mistake included. That is how you get better.', fix: 'You bought after a big green candle (chasing) and did not sell at your stop, so a 1R loss became 1.6R. Set a real stop order in TradingView so it sells for you.' },
+  { id: 7, tk: 'SPY', setup: 'Pullback', opened: '16 Nov', closed: '18 Nov', entry: 679.30, stop: 674.30, tp: 690.00, exit: 685.30, r: 1.2, pnl: 6, rules: [1,1,1,1,1], emo: 'Calm', note: 'Market bounced off the 20-day. Took profit into resistance.', grade: 'A−', good: 'Patient entry and you locked in profit at an obvious resistance level.', fix: 'Your target was a bit ambitious for SPY. Base targets on the last swing high.' },
+  { id: 6, tk: 'AMZN', setup: 'Pullback', opened: '12 Nov', closed: '16 Nov', entry: 238.60, stop: 234.60, tp: 248.00, exit: 236.60, r: -0.5, pnl: -2.5, rules: [1,1,1,1,1], emo: 'Anxious', note: 'Whole market turned weak, closed early.', grade: 'B+', good: 'Closing early when the whole market turned weak halved your loss. Good judgement.', fix: 'Write down why you closed early, so you know if it was a rule or just a feeling.' },
+  { id: 5, tk: 'NVDA', setup: 'Pullback', opened: '11 Nov', closed: '13 Nov', entry: 186.20, stop: 182.20, tp: 196.00, exit: 195.80, r: 2.4, pnl: 12, rules: [1,1,1,1,1], emo: 'Calm', note: 'Best one yet. Waited for the bounce candle, set my orders, walked away.', grade: 'A+', good: 'Your best trade: clean pullback, orders set in advance, held to target.', fix: 'Screenshot your exit too, so you can compare entry and exit later.' },
+  { id: 4, tk: 'MSFT', setup: 'Breakout', opened: '10 Nov', closed: '11 Nov', entry: 528.50, stop: 521.50, tp: 545.00, exit: 521.50, r: -1, pnl: -5, rules: [1,1,1,1,1], emo: 'Confident', note: 'Breakout failed next morning.', grade: 'B', good: 'Stop respected. Loss kept to 1R.', fix: 'Second failed breakout. Volume was below average on the breakout day.' },
+  { id: 3, tk: 'QQQ', setup: 'Pullback', opened: '6 Nov', closed: '10 Nov', entry: 612.10, stop: 606.10, tp: 625.00, exit: 624.70, r: 2.1, pnl: 10.5, rules: [1,1,1,1,1], emo: 'Calm', note: 'Held over the weekend, hit target Tuesday.', grade: 'A', good: 'Held to target over a weekend without fiddling. Strong discipline.', fix: 'Nothing big. Logged quickly and completely.' },
+  { id: 2, tk: 'AAPL', setup: 'Breakout', opened: '5 Nov', closed: '6 Nov', entry: 272.80, stop: 268.30, tp: 282.00, exit: 268.30, r: -1, pnl: -5, rules: [1,1,1,1,1], emo: 'Confident', note: 'Looked strong, faded on Friday.', grade: 'B', good: 'Took the full stop without moving it. Exactly what Dad\'s targets check.', fix: 'Bought a breakout on a low-volume day. Breakouts without volume often fail.' },
+  { id: 1, tk: 'SPY', setup: 'Pullback', opened: '3 Nov', closed: '4 Nov', entry: 682.40, stop: 677.90, tp: 692.00, exit: 690.50, r: 1.8, pnl: 9, rules: [1,1,1,1,1], emo: 'Calm', note: 'First trade! Bought the dip to the 20-day average.', grade: 'A', good: 'Waited for price to pull back to the 20-day average before buying. Textbook.', fix: 'Sold a little before target. Note it if this keeps happening.' }
+];
+const SWP = 'Sweep + FVG', NOS = 'No sweep';
+const OV = {
+  11: { setup: SWP, note: 'Swept last week\'s low at $266.40, broke structure up on the 4H, bought the retrace into the gap.', good: 'Plan set before entry: stop under the sweep at $266.10, target the old high at $280. Reward is 2.5× the risk.' },
+  10: { setup: NOS, note: 'Broke above the range so I bought. No sweep first. Reversed the same day.', good: 'Loss kept to exactly 1R. That is a good loss.', fix: 'Your 4th trade this month with no liquidity sweep first, and all 4 lost. Wait for the sweep.' },
+  9: { setup: SWP, note: 'Swept Thursday\'s low, 4H structure flipped up, came back into the gap and went.', good: 'Textbook: sweep, break of structure, entry in the gap. Held through a red day.', fix: 'Sold 80% of the way to the old high. Track how often you exit early.' },
+  8: { setup: NOS, fix: 'No sweep, and you bought after a huge green candle instead of waiting for price to come back to the gap. Then you skipped your stop, so 1R became 1.6R. Use a real stop order.' },
+  7: { setup: SWP, note: 'Took out Friday\'s low early, then reclaimed it. Took profit at the old high.', good: 'Patient: waited for the sweep and the reclaim before buying.', fix: 'Mark the gap on the 1H chart too, so your entry is more precise.' },
+  6: { setup: SWP },
+  5: { setup: SWP, note: 'Best one yet. Swept the low, strong break up, set my order in the gap and walked away.', good: 'Your best trade: the full model, orders set in advance, held to the old high.' },
+  4: { setup: NOS, note: 'Bought the break of the high. Failed next morning.', fix: 'No sweep before entry. Price ran the old high then reversed, so your stop was the liquidity.' },
+  3: { setup: SWP, note: 'Held over the weekend, hit the old high Tuesday.' },
+  2: { setup: NOS, note: 'Looked strong, bought the breakout. Faded on Friday.', fix: 'Bought a break of a high without a sweep of a low first. Those keep failing for you.' },
+  1: { setup: SWP, note: 'First trade! Swept the low, broke structure, bought in the gap.', good: 'Waited for all three steps: sweep, break, gap. Textbook.' }
+};
+TRADES.forEach(function (t) { Object.assign(t, OV[t.id] || {}); });
+const WIN = [100,101.2,100.6,102,103.1,102.5,104,105.2,104.6,106,107.1,106.4,108,107,105.8,105,104.2,103.6,104.1,105.2,106.8,106.2,108,109.3,108.7];
+const LOSS = [100,101.2,100.6,102,103.1,102.5,104,105.2,104.6,106,107.1,106.4,108,107,105.8,105,104.2,103.6,104.1,103.4,102.8,103.1,102.2,101.6,102.0];
+const PB = [100,100.8,101.5,101.1,102.4,103.2,102.8,104,104.9,104.3,105.6,106.4,105.9,107.2,106.5,105.7,105.1,104.8,105.9,106.9,107.8,107.3,108.9,109.6];
+const BO = [101,102.2,103.5,104.6,105.6,104.8,105.2,104.4,105.7,104.9,105.3,104.5,105.6,105.1,104.7,105.4,105.8,107.6,108.1,107.7,108.9,109.5,109.1,110.2];
+const BOVOL = [5,6,5,7,6,4,5,4,5,4,4,5,4,4,3,4,5,13,9,7,8,7,6,7];
+
+function money(v) { return (v >= 0 ? '+' : '−') + '£' + Math.abs(v).toFixed(2); }
+function rStr(r) { return (r >= 0 ? '+' : '−') + Math.abs(r).toFixed(1) + 'R'; }
+function chart(closes, o0, lines, H, vol, lows) {
+  const W = 340, top = 14, bot = vol ? 34 : 10;
+  const cs = closes.map(function (cl, i) { const o = i ? closes[i - 1] : o0; const w = 0.3 + (i % 3) * 0.18; return { o: o, c: cl, h: Math.max(o, cl) + w, l: (lows && lows[i]) || (Math.min(o, cl) - w) }; });
+  let lo = Math.min.apply(null, cs.map(function (k) { return k.l; }).concat(lines)) - 0.4;
+  let hi = Math.max.apply(null, cs.map(function (k) { return k.h; }).concat(lines)) + 0.4;
+  const y = function (p) { return +(top + (hi - p) / (hi - lo) * (H - top - bot)).toFixed(1); };
+  const step = (W - 50) / closes.length, bw = +(step * 0.62).toFixed(1);
+  let bull = '', bear = '', wick = '', ma = '', vp = '', vh = '';
+  cs.forEach(function (k, i) {
+    const x = +(6 + i * step).toFixed(1), cx = +(x + bw / 2).toFixed(1);
+    const yt = y(Math.max(k.o, k.c)), yb = y(Math.min(k.o, k.c));
+    const hg = Math.max(1, +(yb - yt).toFixed(1));
+    const d = 'M' + x + ' ' + yt + 'h' + bw + 'v' + hg + 'h-' + bw + 'Z';
+    if (k.c >= k.o) bull += d; else bear += d;
+    wick += 'M' + cx + ' ' + y(k.h) + 'V' + y(k.l);
+    if (i >= 5) { const a = closes.slice(i - 5, i + 1).reduce(function (s, b) { return s + b; }, 0) / 6; ma += (ma ? ' ' : '') + cx + ',' + y(a); }
+    if (vol) { const vhgt = vol[i] * 2.2; const r = 'M' + x + ' ' + (H - 4 - vhgt).toFixed(1) + 'h' + bw + 'v' + vhgt.toFixed(1) + 'h-' + bw + 'Z'; if (vol[i] > 10) vh += r; else vp += r; }
+  });
+  return { bull: bull, bear: bear, wick: wick, ma: ma, vol: vp, volHi: vh, y: y, x: function (i) { return +(6 + i * step + bw / 2).toFixed(1); } };
+}
+function levels(c, en, st, tp, ei) {
+  const enY = c.y(en), stY = c.y(st), tpY = c.y(tp);
+  return { c: c, enY: enY, stY: stY, tpY: tpY, enX: c.x(ei), rewardH: +(enY - tpY).toFixed(1), riskH: +(stY - enY).toFixed(1), tpTY: tpY - 3, enTY: enY - 3, stTY: stY + 10, enLX: c.x(ei) - 22, enLY: enY + 18 };
+}
+const WINC = levels(chart(WIN, 99.4, [102.6, 109], 150), 104.1, 102.6, 109, 18);
+const LOSSC = levels(chart(LOSS, 99.4, [102.6, 109], 150), 104.1, 102.6, 109, 18);
+const PBC = levels(chart(PB, 99.5, [104.3, 109.6], 190), 105.9, 104.3, 109.6, 18);
+const BOC = levels(chart(BO, 100.4, [104.4, 111], 190, BOVOL), 107.6, 104.4, 111, 17);
+const SW = [114.6,113.2,111.8,112.3,110.6,108.9,109.3,107.6,105.6,106.4,107.2,106.3,105.7,105.5,106.2,108.4,109.0,108.6,108.0,109.8,111.3,112.6,114.0,115.4];
+const SWL = []; SWL[13] = 104.3;
+const SWC = levels(chart(SW, 115.0, [104.1, 115.3], 190, null, SWL), 107.9, 104.1, 115.3, 18);
+(function () { const c = SWC.c; SWC.fvgX = c.x(14); SWC.fvgW = +(340 - c.x(14)).toFixed(1); SWC.fvgY = c.y(107.92); SWC.fvgH = +(c.y(106.86) - c.y(107.92)).toFixed(1); SWC.fvgTY = c.y(107.39) + 3; SWC.lowY = c.y(104.94); SWC.lowX1 = c.x(7); SWC.lowX2 = c.x(15); SWC.bosY = c.y(107.68); SWC.bosX1 = c.x(10); SWC.bosX2 = c.x(16); SWC.bosTY = c.y(107.68) - 4; SWC.swX = c.x(13) - 14; SWC.swY = c.y(104.3) + 13; SWC.ohY = SWC.tpY + 12; })();
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { screen: 'home', back: 'home', sel: 11, mode: 'quick', shot: 'idle', csv: 'idle', fromShot: false, filter: 'All', pbSel: '1 · Bias', bias: 'Up', zone: 'Discount', bHi: '688.20', bLo: '671.40', added: [], toast: '',
+      share: true, notes: false, ai: true, copied: false,
+      f: { tk: 'MSFT', dir: 'Long', entry: '515.00', stop: '509.00', tp: '530.00', risk: 1, setup: 'Sweep + FVG', rules: [1, 1, 1, 0, 1], emo: 'Calm', note: '' } };
+  }
+  go(s) { this.setState({ screen: s, back: this.state.screen === 'detail' ? this.state.back : this.state.screen }); }
+  setF(patch) { this.setState({ f: Object.assign({}, this.state.f, patch) }); }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  renderVals() {
+    const s = this.state, f = s.f, self = this;
+    const all = s.added.concat(TRADES);
+    const openT = function (t) { return function () { self.setState({ sel: t.id, back: s.screen === 'detail' ? s.back : s.screen, screen: 'detail' }); }; };
+    const decorate = function (t) {
+      const isOpen = !t.closed;
+      return Object.assign({}, t, {
+        open: openT(t), pnlStr: isOpen ? 'Open' : money(t.pnl), rStr: isOpen ? '' : rStr(t.r),
+        cls: isOpen ? 'flat' : (t.pnl >= 0 ? 'up' : 'dn'),
+        when: isOpen ? 'Opened ' + t.opened : 'Closed ' + t.closed,
+        gradeLabel: isOpen ? 'Open' : 'Coach ' + t.grade,
+        gradeCls: isOpen ? 'info' : (t.grade[0] === 'A' ? 'ok' : t.grade[0] === 'B' ? 'info' : 'bad')
+      });
+    };
+    const list = all.map(decorate).filter(function (t) {
+      if (s.filter === 'Wins') return t.closed && t.pnl > 0;
+      if (s.filter === 'Losses') return t.closed && t.pnl < 0;
+      if (s.filter === 'Open') return !t.closed;
+      return true;
+    });
+    const sel = decorate(all.find(function (t) { return t.id === s.sel; }) || TRADES[0]);
+    const usd = function (v) { return v == null ? '—' : '$' + Number(v).toFixed(2); };
+    const sh = (6.35 / Math.abs(sel.entry - sel.stop));
+    const nRules = sel.rules.filter(Boolean).length;
+    const d = Object.assign({}, sel, {
+      dir: 'Long', entryS: usd(sel.entry), exitS: sel.exit == null ? 'Open' : usd(sel.exit), stopS: usd(sel.stop), tpS: usd(sel.tp),
+      shares: sh.toFixed(2) + ' sh', riskS: '1% · £5', rulesN: nRules + '/5', rulesCls: nRules === 5 ? 'ok' : 'bad',
+      emoCls: (sel.emo === 'FOMO' || sel.emo === 'Revenge') ? 'bad' : (sel.emo === 'Anxious' ? 'warn' : 'info'),
+      gradeColor: sel.grade[0] === 'A' ? '#5BE3AB' : sel.grade[0] === 'B' ? '#9DBBFF' : sel.grade[0] === 'D' ? '#FF9A9A' : '#C9D1E0',
+      ruleList: RULES.map(function (r, i) { return { text: r, on: !!sel.rules[i], off: !sel.rules[i], cls: sel.rules[i] ? 'on' : 'off' }; })
+    });
+    const dc = sel.closed && sel.pnl < 0 ? LOSSC : WINC;
+
+    // quick add calc
+    const en = parseFloat(f.entry), st = parseFloat(f.stop), tp = parseFloat(f.tp);
+    const riskGBP = ACCT * f.risk / 100, rps = Math.abs(en - st);
+    const ok = en > 0 && st > 0 && rps > 0;
+    const shares = ok ? (riskGBP * FX) / rps : 0;
+    const rr = ok && tp > 0 ? Math.abs(tp - en) / rps : 0;
+    const calc = {
+      shares: ok ? shares.toFixed(2) + ' sh' : '—', risk: '£' + riskGBP.toFixed(2), reward: ok && tp > 0 ? '£' + (riskGBP * rr).toFixed(2) : '—',
+      rrLabel: ok && tp > 0 ? 'Reward ' + rr.toFixed(1) + '× risk' : 'Add your numbers',
+      rrCls: rr >= 2 ? 'ok' : rr >= 1.5 ? 'warn' : 'bad', tooBig: ok && (shares * en / FX) > ACCT
+    };
+    const chipsOf = function (names, cur, key) { return names.map(function (n) { return { name: n, cls: cur === n ? 'on' : '', pick: function () { const p = {}; p[key] = n; self.setF(p); } }; }); };
+
+    // playbook
+    const PBD = {
+      Pullback: { name: 'Pullback to the 20-day average', short: 'pullback', pill: 'Your best setup', pillCls: 'ok', ex: PBC,
+        oneLiner: 'A share in an uptrend dips back to its 20-day moving average, then bounces. You buy the bounce, not the dip.',
+        alt: 'Example chart: price trends up, dips to the yellow 20-day average line, then a green candle bounces off it where you buy.',
+        levelY: -10, labelY: 26, levelDash: '0', levelLabel: '— 20-day average', maOpacity: 1, zoneX: PBC.enX, zoneW: 340 - PBC.enX,
+        look: ['Price is making higher highs on the daily chart', 'It dips back and touches the 20-day average (yellow line)', 'A green candle closes back up off the line', 'Next target (last high) is at least 2× further than your stop'],
+        entry: 'Above the high of the bounce candle', stop: 'Just under the low of the dip', target: 'The last swing high',
+        avoid: 'Price has closed below the 20-day for 2+ days, or the whole market (SPY) is falling.',
+        n: '6', wins: '5', avgR: '+1.4R', resPnl: '+£42.50', resCls: 'up', coach: 'Strong so far. 6 trades is still a small sample, so keep logging these to prove it.' },
+      Breakout: { name: 'Breakout with volume', short: 'breakout', pill: 'Paused: 0 for 4', pillCls: 'bad', ex: BOC,
+        oneLiner: 'A share stuck under a ceiling (resistance) finally closes above it on big volume. You buy as it breaks out.',
+        alt: 'Example chart: price moves sideways under a yellow resistance line, then a big green candle with a tall volume bar breaks above it.',
+        levelY: BOC.c.y(106.0), labelY: BOC.c.y(106.0) - 4, levelDash: '5 3', levelLabel: 'Resistance (the ceiling)', maOpacity: 0, zoneX: BOC.enX, zoneW: 340 - BOC.enX,
+        look: ['Price tested the same ceiling 3+ times', 'Breakout candle closes clearly above it', 'Volume (bars at the bottom) is about 2× normal', 'Market (SPY) is in an uptrend'],
+        entry: 'On the close of the breakout day', stop: 'Back under the ceiling', target: '2–3× your risk above entry',
+        avoid: 'Volume is normal or low (your 4 losses all had low volume), or you are buying after it already ran.',
+        n: '4', wins: '0', avgR: '−1.2R', resPnl: '−£23.00', resCls: 'dn', coach: 'All 4 failed, and all 4 had low volume. Paper-trade only the high-volume ones, or pause this setup for December.' }
+    };
+    PBD.Setup = { name: 'Sweep → break → gap', short: 'sweep', pill: 'Your main setup', pillCls: 'ok', ex: SWC,
+      oneLiner: 'Price dips under an obvious old low (grabbing the stops sitting there), then snaps back up hard and breaks the last high, leaving a gap. You buy when price comes back into that gap.',
+      alt: 'Example chart: price falls, wicks below an old low marked in yellow (the sweep), then rallies above the last high (BOS), leaving a blue gap zone. Buy when price returns into the gap, stop under the sweep, target the old high.',
+      look: ['Step 1 says look for buys (daily bias up, price in discount)', 'Sweep: price wicks below an old low, then closes back above it', 'Break of structure (BOS): price closes above the last swing high', 'The big move up leaves a fair value gap (FVG): a gap between candle wicks', 'The old high above is at least 2× your risk away'],
+      entry: 'When price comes back into the gap', stop: 'Just under the sweep low', target: 'The old high (liquidity above)',
+      avoid: 'There was no sweep (you\'d just be chasing a breakout), big news is due, or Step 1 says sit out.',
+      n: '6', wins: '5', avgR: '+1.4R', resPnl: '+£42.50', resCls: 'up', coach: 'With a sweep first you won 5 of 6. Without one (marked "No sweep") you lost all 4. Think about making "sweep first" one of your rules.' };
+    const pbData = PBD.Setup;
+    const bvMap = {
+      'Up|Discount': { title: 'Look for buys', color: '#36D399', bg: '#0F2119', border: '#1D5A41', why: 'Trend is up and price is cheap. Watch for a sweep of the old low at $' + s.bLo + ', then go to Step 2.' },
+      'Up|Premium': { title: 'Wait', color: '#F5C866', bg: '#1E1A10', border: '#5A4718', why: 'Trend is up but price is expensive. Wait for it to drop into the bottom half before looking for buys.' },
+      'Sideways|Discount': { title: 'Be picky', color: '#F5C866', bg: '#1E1A10', border: '#5A4718', why: 'No clear direction. Only an A+ sweep of $' + s.bLo + ' counts. Otherwise sit out.' },
+      'Sideways|Premium': { title: 'Sit out', color: '#FF8080', bg: '#22121A', border: '#5C2629', why: 'No direction and price is expensive. Nothing to do today, and that is fine.' },
+      'Down|Discount': { title: 'Sit out', color: '#FF8080', bg: '#22121A', border: '#5C2629', why: 'Trend is down. Short selling comes later. For now, no buys against the trend.' },
+      'Down|Premium': { title: 'Sit out', color: '#FF8080', bg: '#22121A', border: '#5C2629', why: 'Trend is down. Short selling comes later. For now, no buys against the trend.' }
+    };
+    const bv = bvMap[s.bias + '|' + s.zone];
+    const NEWS = (function () { const ok = 'ok', warn = 'warn', bad = 'bad', info = 'info'; return [
+      { name: 'Today · Fri 27', verdict: 'Trade carefully', vColor: '#F5C866', vBg: '#1E1A10', vBorder: '#5A4718',
+        why: 'Day after Thanksgiving. The US market shuts early and few people trade, so prices can move oddly. Manage your open AAPL trade, but don\'t start a new one.',
+        hoursPill: 'Half day', hoursCls: warn, close: '18:00',
+        events: [], earnings: [{ tk: 'AAPL', txt: 'None', cls: ok }, { tk: 'NVDA', txt: 'None', cls: ok }, { tk: 'MSFT', txt: 'None', cls: ok }, { tk: 'SPY / QQQ', txt: 'n/a', cls: info }],
+        plan: 'Quiet, thin day. Check AAPL is still above your stop at $266.10, then close the app. Plan Monday instead.' },
+      { name: 'Mon 30 Nov', verdict: 'Trade day', vColor: '#36D399', vBg: '#0F2119', vBorder: '#1D5A41',
+        why: 'Normal full day, no big news and no earnings on your watchlist. Good day to look for a sweep setup.',
+        hoursPill: 'Full day', hoursCls: ok, close: '21:00',
+        events: [{ t: '15:00', name: 'Chicago business survey', impact: 'Low', cls: info, plain: 'Small report on business activity. Rarely moves the market much.' }],
+        earnings: [{ tk: 'AAPL', txt: 'None', cls: ok }, { tk: 'NVDA', txt: 'None', cls: ok }, { tk: 'MSFT', txt: 'None', cls: ok }, { tk: 'CRM', txt: 'Wed after close', cls: warn }],
+        plan: 'Green light. SPY is above its 20-day average. Scan SPY, QQQ, NVDA and MSFT for a sweep of an old low after 15:00, once the opening rush settles.' },
+      { name: 'Fri 4 Dec', verdict: 'Wait until 14:00', vColor: '#F5C866', vBg: '#1E1A10', vBorder: '#5A4718',
+        why: 'US jobs report at 13:30 UK time. It\'s one of the biggest market movers of the month. Don\'t enter anything before it comes out.',
+        hoursPill: 'Full day', hoursCls: ok, close: '21:00',
+        events: [{ t: '13:30', name: 'US jobs report (NFP)', impact: 'High', cls: bad, plain: 'How many jobs the US added last month. Big surprises can swing SPY 1–2% in minutes.' }, { t: '15:00', name: 'Consumer sentiment', impact: 'Medium', cls: warn, plain: 'How confident US shoppers feel. Can nudge the market.' }],
+        earnings: [{ tk: 'AAPL', txt: 'None', cls: ok }, { tk: 'NVDA', txt: 'None', cls: ok }, { tk: 'MSFT', txt: 'None', cls: ok }, { tk: 'AVGO', txt: 'Thu after close', cls: warn }],
+        plan: 'Let the jobs report land, then wait for the open at 14:30 and the first hour to settle. Only take an A-grade sweep setup today.' }
+    ]; })();
+    const KIND = { best: ['#36D399', '#5BE3AB'], ok: ['#7EA6FF', '#9DBBFF'], quiet: ['#4A5468', '#C9D1E0'], off: ['#FF8080', '#FF9A9A'] };
+    const mins = function (h) { const p = h.split(':'); return +p[0] * 60 + +p[1]; };
+    const seg = function (a, b, name, kind, desc) { return { a: a, b: b, t: a + '–' + b, name: name, kind: kind, desc: desc, bg: KIND[kind][0], fg: KIND[kind][1] }; };
+    const TL = [
+      [seg('14:30', '15:00', 'Opening rush', 'off', 'Prices jump around as the US market opens. Don\'t enter, just watch.'),
+       seg('15:00', '17:00', 'Best window: thin trading', 'ok', 'Half day, so fewer traders. Manage open trades only.'),
+       seg('17:00', '18:00', 'Last hour, early close', 'quiet', 'Market shuts at 18:00. Moves now can be random.'),
+       seg('18:00', '19:00', 'Journal and plan', 'ok', 'Log anything you closed, then mark next week\'s levels.')],
+      [seg('14:30', '15:00', 'Opening rush', 'off', 'Fast, messy moves while big orders hit. Don\'t enter, just watch where liquidity gets taken.'),
+       seg('15:00', '17:00', 'Best window: NY morning', 'best', 'Most volume and cleanest moves. Sweeps of the overnight high or low often happen here.'),
+       seg('17:00', '19:00', 'Lunch lull', 'quiet', 'New York lunch. Volume drops and moves fake out. Step away.'),
+       seg('19:00', '20:00', 'Afternoon', 'ok', 'Volume comes back. OK for a setup you were already watching.'),
+       seg('20:00', '21:00', 'Best window: last hour', 'best', 'The daily candle is almost done, so you can see if your swing setup really held.'),
+       seg('21:00', '21:30', 'Journal and plan', 'ok', 'Market closed. Log trades and do Step 1 for tomorrow.')],
+      [seg('13:15', '14:00', 'Jobs report: hands off', 'off', 'Big release at 13:30. Close nothing, open nothing until it settles.'),
+       seg('14:30', '15:00', 'Opening rush', 'off', 'Extra wild after a jobs report. Just watch.'),
+       seg('15:00', '15:30', 'Second news release', 'off', 'Consumer sentiment at 15:00. Wait for it.'),
+       seg('15:30', '17:00', 'Best window: after the news', 'best', 'Direction is usually clearer now. Look for the sweep.'),
+       seg('17:00', '19:00', 'Lunch lull', 'quiet', 'Volume drops. Step away.'),
+       seg('20:00', '21:00', 'Best window: last hour', 'best', 'Check the daily candle before committing to a swing trade.'),
+       seg('21:00', '21:30', 'Journal and plan', 'ok', 'Log trades, plan Monday.')]
+    ];
+    const nd0 = NEWS[s.newsDay || 0];
+    const tl = TL[s.newsDay || 0];
+    const strip = tl.map(function (x) { const a = mins(x.a), b = mins(x.b); return { l: ((a - 780) / 510 * 100).toFixed(2) + '%', w: ((b - a) / 510 * 100).toFixed(2) + '%', bg: x.bg }; });
+    const nd = Object.assign({}, nd0, { noEvents: nd0.events.length === 0, tl: tl, strip: strip });
+    const pb = Object.assign({}, pbData, { logIt: function () { self.setState({ screen: 'log', mode: 'quick', f: Object.assign({}, f, { setup: 'Sweep + FVG' }) }); } });
+
+    // equity
+    const cum = [0, 9, 4, 14.5, 9.5, 21.5, 19, 25, 17, 24.5, 19.5];
+    const ey = function (v) { return +(88 - (v + 2) / 29 * 80).toFixed(1); };
+    const pts = cum.map(function (v, i) { return (i * 32) + ',' + ey(v); }).join(' ');
+
+    // calendar
+    const byDay = { 4: 9, 6: -5, 10: 10.5, 11: -5, 13: 12, 16: -2.5, 18: 6, 19: -8, 23: 7.5, 24: -5 };
+    const days = [2,3,4,5,6,9,10,11,12,13,16,17,18,19,20,23,24,25,26,27,30];
+    const cal = days.map(function (n) {
+      const v = byDay[n];
+      if (n === 26) return { d: '26', p: 'Closed', cls: 'x', tcls: 'muted' };
+      if (n === 30) return { d: '30', p: '', cls: 'x', tcls: '' };
+      if (v == null) return { d: String(n), p: n === 27 ? 'Today' : '', cls: n === 27 ? 'today' : '', tcls: 'muted' };
+      return { d: String(n), p: (v > 0 ? '+' : '−') + Math.abs(v).toFixed(v % 1 ? 1 : 0), cls: v > 0 ? 'w' : 'l', tcls: v > 0 ? 'up' : 'dn' };
+    });
+
+    const titles = { home: 'OS Journal', trades: 'Trades', log: 'Log a trade', detail: sel.tk + ' trade', stats: 'Stats', playbook: 'Setup playbook', dad: "Dad's view" };
+    const on = function (x) { return s.screen === x ? 'on' : ''; };
+    const nDone = f.rules.filter(Boolean).length;
+
+    return {
+      title: titles[s.screen], showBack: s.screen === 'detail' || s.screen === 'dad',
+      goBack: function () { self.setState({ screen: s.screen === 'detail' ? s.back : 'home' }); },
+      goHome: function () { self.go('home'); }, goTrades: function () { self.go('trades'); }, goLog: function () { self.go('log'); },
+      goStats: function () { self.go('stats'); }, goPlaybook: function () { self.go('playbook'); }, goDad: function () { self.go('dad'); },
+      isHome: s.screen === 'home', isLog: s.screen === 'log', isTrades: s.screen === 'trades', isDetail: s.screen === 'detail',
+      isStats: s.screen === 'stats', isPlaybook: s.screen === 'playbook', isDad: s.screen === 'dad',
+      tabHome: on('home'), tabTrades: on('trades') || (s.screen === 'detail' ? 'on' : ''), tabStats: on('stats'), tabPlaybook: on('playbook'),
+      toast: s.toast,
+      targets: [
+        { name: 'Profitable in 2 of 3 months', hint: 'November is up. One more green month needed.', value: '1 / 2', status: 'On track', cls: 'ok', dadValue: '1 of 2 ✓', dadColor: '#116B43' },
+        { name: 'Average win bigger than average loss', hint: 'Your winners pay more than your losers cost.', value: '£9.00 vs £5.10', status: 'Passing', cls: 'ok', dadValue: '£9.00 vs £5.10 ✓', dadColor: '#116B43' },
+        { name: 'No month below −5%', hint: 'Worst month so far is +3.9%.', value: '+3.9%', status: 'Passing', cls: 'ok', dadValue: 'Worst +3.9% ✓', dadColor: '#116B43' },
+        { name: 'Follow my rules (90%+)', hint: '1 trade broke a rule (META, chased it).', value: '90%', status: 'Watch it', cls: 'warn', dadValue: '90%, borderline', dadColor: '#8A5A00' }
+      ],
+      recent: list.filter(function (t) { return t.closed; }).slice(0, 3), openFirst: decorate(all.find(function (t) { return !t.closed; })),
+      // log
+      segQuick: s.mode === 'quick' ? 'on' : '', segShot: s.mode === 'shot' ? 'on' : '', segCsv: s.mode === 'csv' ? 'on' : '',
+      modeQuick: function () { self.setState({ mode: 'quick' }); }, modeShot: function () { self.setState({ mode: 'shot' }); }, modeCsv: function () { self.setState({ mode: 'csv' }); },
+      isQuick: s.mode === 'quick', isShot: s.mode === 'shot', isCsv: s.mode === 'csv', fromShot: s.fromShot,
+      f: f, calc: calc,
+      setTk: function (e) { self.setF({ tk: e.target.value.toUpperCase() }); },
+      setEntry: function (e) { self.setF({ entry: e.target.value }); }, setStop: function (e) { self.setF({ stop: e.target.value }); },
+      setTp: function (e) { self.setF({ tp: e.target.value }); }, setNote: function (e) { self.setF({ note: e.target.value }); },
+      tickChips: chipsOf(['SPY', 'QQQ', 'AAPL', 'MSFT', 'NVDA'], f.tk, 'tk'),
+      dirLong: f.dir === 'Long' ? 'on' : '', dirShort: f.dir === 'Short' ? 'on' : '',
+      setLong: function () { self.setF({ dir: 'Long' }); }, setShort: function () { self.setF({ dir: 'Short' }); },
+      riskChips: [1, 1.5, 2].map(function (r) { return { name: r + '%', cls: f.risk === r ? 'on' : '', pick: function () { self.setF({ risk: r }); } }; }),
+      setupChips: chipsOf(['Sweep + FVG', 'No sweep', 'Other'], f.setup, 'setup'),
+      emoChips: chipsOf(['Calm', 'Confident', 'Anxious', 'FOMO', 'Bored', 'Revenge'], f.emo, 'emo'),
+      ruleChecks: RULES.map(function (r, i) { return { text: r, on: !!f.rules[i], cls: f.rules[i] ? 'on' : '', toggle: function () { const nr = f.rules.slice(); nr[i] = nr[i] ? 0 : 1; self.setF({ rules: nr }); } }; }),
+      rulesDone: nDone + ' of 5 ticked',
+      save: function () {
+        const t = { id: Date.now(), tk: f.tk || '???', setup: f.setup, opened: '27 Nov', closed: null, entry: en || 0, stop: st || 0, tp: tp || 0, exit: null, r: 0, pnl: 0, rules: f.rules.slice(), emo: f.emo, note: f.note || 'No notes yet.', grade: '—', good: 'Plan saved: reward is ' + rr.toFixed(1) + '× your risk, ' + nDone + ' of 5 rules ticked.', fix: nDone < 5 ? 'You left a rule unticked. Ask yourself if this trade really fits your plan.' : 'Leave the stop where it is. Full review when you close the trade.' };
+        self.setState({ added: [t].concat(s.added), screen: 'home', fromShot: false });
+        self.flash('Saved: ' + t.tk + ' ' + f.dir.toLowerCase() + ', risking £' + riskGBP.toFixed(2));
+      },
+      shotIdle: s.shot === 'idle', shotReading: s.shot === 'reading', shotDone: s.shot === 'done', win: WINC,
+      readShot: function () { self.setState({ shot: 'reading' }); setTimeout(function () { self.setState({ shot: 'done' }); }, 1300); },
+      useShot: function () { self.setState({ mode: 'quick', shot: 'idle', fromShot: true, f: Object.assign({}, f, { tk: 'NVDA', dir: 'Long', entry: '186.20', stop: '182.20', tp: '196.00' }) }); },
+      csvIdle: s.csv === 'idle', csvPreview: s.csv === 'preview',
+      readCsv: function () { self.setState({ csv: 'preview' }); },
+      importCsv: function () { self.setState({ csv: 'idle', screen: 'trades' }); self.flash('3 trades imported. Add setups when you have a sec.'); },
+      csvRows: [{ tk: 'TSLA', d: 'Long · 2 Dec → 4 Dec', p: '+£6.40', cls: 'up' }, { tk: 'AMD', d: 'Long · 3 Dec → 3 Dec', p: '−£5.00', cls: 'dn' }, { tk: 'SPY', d: 'Long · 4 Dec → 7 Dec', p: '+£8.10', cls: 'up' }],
+      // trades
+      filterChips: ['All', 'Wins', 'Losses', 'Open'].map(function (n) { return { name: n, cls: s.filter === n ? 'on' : '', pick: function () { self.setState({ filter: n }); } }; }),
+      tradeList: list,
+      d: d, dc: dc,
+      // playbook
+      pb: pb, pbTabs: ['1 · Bias', '2 · Setup', 'Trade today?'].map(function (n) { return { name: n, cls: s.pbSel === n ? 'on' : '', pick: function () { self.setState({ pbSel: n }); } }; }),
+      pbIsNews: s.pbSel === 'Trade today?', pbIsSetup: s.pbSel === '2 · Setup', pbIsBias: s.pbSel === '1 · Bias', nd: nd, bv: bv, bHi: s.bHi, bLo: s.bLo,
+      setHi: function (e) { self.setState({ bHi: e.target.value }); }, setLo: function (e) { self.setState({ bLo: e.target.value }); },
+      biasChips: ['Up', 'Sideways', 'Down'].map(function (n) { return { name: n, cls: s.bias === n ? 'on' : '', pick: function () { self.setState({ bias: n }); } }; }),
+      zoneChips: [['Discount', 'Bottom half'], ['Premium', 'Top half']].map(function (n) { return { name: n[0] + ' (' + n[1].toLowerCase() + ')', cls: s.zone === n[0] ? 'on' : '', pick: function () { self.setState({ zone: n[0] }); } }; }),
+      toSetup: function () { self.setState({ pbSel: '2 · Setup' }); },
+      newsTabs: NEWS.map(function (n, i) { return { name: n.name, cls: (s.newsDay || 0) === i ? 'on' : '', pick: function () { self.setState({ newsDay: i }); } }; }),
+      // stats
+      eq: { line: pts, area: '0,' + ey(-2) + ' ' + pts + ' 320,' + ey(-2), zeroY: ey(0), zeroTY: ey(0) - 4 },
+      calHead: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], cal: cal,
+      bySetup: [{ name: 'Sweep + FVG', rec: '5W 1L', p: '+£42.50', cls: 'up', w: '100%', color: '#36D399' }, { name: 'No sweep', rec: '0W 4L', p: '−£23.00', cls: 'dn', w: '54%', color: '#FF8080' }],
+      // dad
+      shareOn: s.share, shareCls: s.share ? 'on' : '', toggleShare: function () { self.setState({ share: !s.share }); },
+      notesCls: s.notes ? 'on' : '', toggleNotes: function () { self.setState({ notes: !s.notes }); },
+      aiCls: s.ai ? 'on' : '', toggleAi: function () { self.setState({ ai: !s.ai }); },
+      dadNotes: s.share && s.notes, dadAi: s.share && s.ai,
+      copyLabel: s.copied ? 'Copied' : 'Copy', copy: function () { self.setState({ copied: true }); setTimeout(function () { self.setState({ copied: false }); }, 1500); }
+    };
+  }
+}
+</script>
+</body>
+</html>
