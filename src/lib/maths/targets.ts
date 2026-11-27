@@ -195,7 +195,7 @@ export function evaluateTargets(cfg: TargetConfig, allTrades: ClosedTrade[], tod
     targets.push({
       key: "no_bad_month",
       name: "No month below −5%",
-      value: worst == null ? "—" : `worst ${signedPct(worst)}`,
+      value: worst == null ? "—" : `worst month ${signedPct(worst)}`,
       status,
       hint,
       met: status === "passing" || status === "watch",

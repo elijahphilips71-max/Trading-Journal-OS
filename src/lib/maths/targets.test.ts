@@ -90,7 +90,7 @@ describe("evaluateTargets", () => {
     expect(at(-25).status).toBe("watch"); // exactly −5% is allowed, with a warning
     expect(at(-25).met).toBe(true);
     expect(at(-25.5).status).toBe("failing");
-    expect(at(-20).value).toBe("worst −4.0%");
+    expect(at(-20).value).toBe("worst month −4.0%");
   });
 
   it("rules followed: passing, watch it and failing", () => {
