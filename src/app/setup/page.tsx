@@ -18,7 +18,7 @@ export default function SetupPage() {
         <ol className="list">
           <li>In Supabase, open your project, then Project Settings, then API.</li>
           <li>
-            Copy the <b>Project URL</b> and the <b>anon public</b> key.
+            Copy the <b>Project URL</b> and the <b>publishable</b> key.
           </li>
           <li>
             Add them to your hosting settings as <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}

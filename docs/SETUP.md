@@ -9,7 +9,7 @@ You only do this once. It takes about 10 minutes.
 3. Go to **Authentication → URL Configuration**:
    - **Site URL**: your app's address, e.g. `https://os-journal.vercel.app`
    - **Redirect URLs**: add `https://os-journal.vercel.app/**` and `http://localhost:3000/**`
-4. Go to **Project Settings → API** and copy the **Project URL** and the **anon public** key.
+4. Go to **Project Settings → API** and copy the **Project URL** and the **publishable** key (starts `sb_publishable_`; older projects call it the anon public key).
 
 ## 2. Hosting (Vercel, free)
 1. Sign in at vercel.com with GitHub and **Import** the `trading-journal-os` repository.
@@ -17,7 +17,7 @@ You only do this once. It takes about 10 minutes.
    | Name | Value |
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | the Project URL |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon public key |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the publishable key (`sb_publishable_…`) |
    | `NEXT_PUBLIC_SITE_URL` | your Vercel address, e.g. `https://os-journal.vercel.app` |
    | `SUPABASE_SERVICE_ROLE_KEY` | the **service_role** key (secret: only ever paste it here) |
    | `ANTHROPIC_API_KEY` | your Claude API key (for the AI coach, from console.anthropic.com) |
