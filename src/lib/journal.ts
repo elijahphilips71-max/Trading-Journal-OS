@@ -133,7 +133,12 @@ export async function latestReview(supabase: SupabaseClient, tradeId: string): P
 }
 
 export async function coachMessages(supabase: SupabaseClient, tradeId: string | null): Promise<AiMessage[]> {
-  let q = supabase.from("ai_messages").select("id, role, content, created_at").order("created_at").limit(100);
+  let q = supabase
+    .from("ai_messages")
+    .select("id, role, content, created_at")
+    .not("content", "like", "[[autofill]]%")
+    .order("created_at")
+    .limit(100);
   q = tradeId ? q.eq("trade_id", tradeId) : q.is("trade_id", null);
   const { data } = await q;
   return (data ?? []) as AiMessage[];

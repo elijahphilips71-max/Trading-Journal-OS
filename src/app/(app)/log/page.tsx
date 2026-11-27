@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { ScreenshotAutofill } from "@/components/ScreenshotAutofill";
 import { TradeForm } from "@/components/TradeForm";
+import { aiConfigured } from "@/lib/ai/coach";
 import { requireOnboarded } from "@/lib/data";
 import { gbpUsdRate } from "@/lib/fx";
 import { accountBalance, listRules, listSetups, listTrades, recentTickers } from "@/lib/journal";
@@ -27,6 +29,17 @@ export default async function LogPage({ searchParams }: PageProps<"/log">) {
     gbpUsdRate(),
   ]);
   const setupParam = typeof sp.setup === "string" ? sp.setup : undefined;
+  const formProps = {
+    userId,
+    balance: accountBalance(profile.starting_balance, trades),
+    fx: fx.rate,
+    fxLive: fx.live,
+    defaultRisk: profile.risk_pct,
+    rules,
+    setups,
+    tickers: recentTickers(trades),
+    today: londonDay(new Date()),
+  };
 
   return (
     <>
@@ -42,23 +55,11 @@ export default async function LogPage({ searchParams }: PageProps<"/log">) {
         {mode === "quick" && (
           <TradeForm
             mode="new"
-            userId={userId}
-            balance={accountBalance(profile.starting_balance, trades)}
-            fx={fx.rate}
-            fxLive={fx.live}
-            defaultRisk={profile.risk_pct}
-            rules={rules}
-            setups={setups}
-            tickers={recentTickers(trades)}
-            today={londonDay(new Date())}
-            prefill={setupParam && setups.some((s) => s.id === setupParam) ? { setupId: setupParam } : undefined}
+            {...formProps}
+            prefill={setupParam && setups.some((x) => x.id === setupParam) ? { setupId: setupParam } : undefined}
           />
         )}
-        {mode === "screenshot" && (
-          <EmptyState title="Screenshot auto-fill is coming">
-            Soon you&apos;ll drop in a TradingView screenshot and the app will fill in the ticker, entry, stop and target for you.
-          </EmptyState>
-        )}
+        {mode === "screenshot" && <ScreenshotAutofill formProps={formProps} aiOn={aiConfigured()} />}
         {mode === "csv" && (
           <EmptyState title="CSV import is coming">
             Soon you&apos;ll import your TradingView Paper Trading history in one go.

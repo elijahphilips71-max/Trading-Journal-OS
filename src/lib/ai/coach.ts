@@ -119,3 +119,52 @@ function toCoachError(e: unknown): CoachError {
   if (e instanceof Anthropic.APIError) return new CoachError("The coach is having a problem right now. Try again later.");
   return new CoachError("Something went wrong with the coach.");
 }
+
+export const ExtractSchema = z.object({
+  ticker: z.string().nullable(),
+  direction: z.enum(["long", "short"]).nullable(),
+  entry: z.number().nullable(),
+  stop: z.number().nullable(),
+  target: z.number().nullable(),
+  confidence: z.enum(["high", "medium", "low"]),
+  note: z.string(),
+});
+export type Extracted = z.infer<typeof ExtractSchema>;
+
+const EXTRACT_TASK = `This is a screenshot of a TradingView chart. Read the trade plan from it.
+- ticker: the symbol shown at the top left (e.g. "SPY", "AAPL"), without the exchange prefix. null if you can't see it.
+- direction: "long" if a Long Position tool is drawn (green profit zone ABOVE entry, red loss zone BELOW), "short" if a Short Position tool is drawn (green zone BELOW, red ABOVE). null if no position tool.
+- entry, stop, target: dollar prices read from the position tool's labels or the price axis. stop = the edge of the red zone, target = the edge of the green zone. null for anything you can't read.
+- confidence: how sure you are about the numbers overall.
+- note: one short plain-English sentence on anything unclear (empty string if all clear).
+Only read what is on the image. Never guess a ticker or invent prices.`;
+
+/** Read ticker, direction, entry, stop and target from a chart screenshot. Always confirmed by the user. */
+export async function extractFromScreenshot(base64: string, mediaType: "image/png" | "image/jpeg" | "image/webp" | "image/gif"): Promise<Extracted> {
+  const anthropic = getClient();
+  let res;
+  try {
+    res = await anthropic.beta.messages.parse({
+      model: AI_MODEL,
+      max_tokens: 4000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "low", format: betaZodOutputFormat(ExtractSchema) },
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            { type: "text", text: EXTRACT_TASK },
+          ],
+        },
+      ],
+    });
+  } catch (e) {
+    throw toCoachError(e);
+  }
+  refusalCheck(res.stop_reason);
+  const parsed = ExtractSchema.safeParse(res.parsed_output);
+  if (!parsed.success) throw new CoachError("Couldn't read that screenshot. Try a clearer one.");
+  return parsed.data;
+}

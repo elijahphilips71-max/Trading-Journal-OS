@@ -117,7 +117,7 @@ export function TradeForm(p: TradeFormProps) {
       notes,
       rules: ticks,
       openedDay,
-      source: t?.source ?? (p.prefill ? "screenshot" : "quick"),
+      source: t?.source ?? (p.prefillNote ? "screenshot" : "quick"),
       shares: edit ? num(sharesIn) : null,
       exit: closed ? num(exit) : null,
       closedDay: closed ? closedDay : null,

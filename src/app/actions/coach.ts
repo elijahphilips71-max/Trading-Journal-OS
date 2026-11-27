@@ -90,7 +90,7 @@ export async function sendCoachMessage(tradeId: string | null, question: string)
       context += `\n\nHis most recent closed trades:\n${recent.join("\n") || "none yet"}`;
     }
 
-    let historyQuery = supabase.from("ai_messages").select("role, content").order("created_at", { ascending: false }).limit(16);
+    let historyQuery = supabase.from("ai_messages").select("role, content").not("content", "like", "[[autofill]]%").order("created_at", { ascending: false }).limit(16);
     historyQuery = tradeId ? historyQuery.eq("trade_id", tradeId) : historyQuery.is("trade_id", null);
     const { data: hist } = await historyQuery;
     const history = ((hist ?? []) as ChatTurn[]).reverse();
