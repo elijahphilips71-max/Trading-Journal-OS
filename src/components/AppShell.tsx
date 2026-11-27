@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";
+import { OfflineSync } from "./OfflineSync";
 import {
   HomeIcon,
   LinkIcon,
@@ -58,7 +59,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         })}
       </aside>
 
-      <div className="main">{children}</div>
+      <div className="main">
+        <OfflineSync />
+        {children}
+      </div>
 
       <nav className="tabbar" aria-label="Main">
         {tabs.slice(0, 2).map((t) => (

@@ -28,6 +28,8 @@ export type TradeInput = {
   /** Edit only, for closed trades. */
   exit?: number | null;
   closedDay?: string | null;
+  /** Set by the offline queue so a retried save can't create the same trade twice. */
+  clientRef?: string | null;
 };
 
 export type ActionResult = { ok: true; id: string } | { ok: false; error: string };
@@ -78,6 +80,11 @@ export async function createTrade(input: TradeInput): Promise<ActionResult> {
   const bad = baseChecks(input);
   if (bad) return { ok: false, error: bad };
   const { supabase, profile } = await requireOnboarded();
+  const ref = input.clientRef && /^offline:[0-9a-f-]{36}$/i.test(input.clientRef) ? input.clientRef : null;
+  if (ref) {
+    const { data: already } = await supabase.from("trades").select("id").eq("external_id", ref).maybeSingle();
+    if (already) return { ok: true, id: already.id };
+  }
   const [trades, fx] = await Promise.all([listTrades(supabase), gbpUsdRate()]);
   const bal = accountBalance(profile.starting_balance, trades);
 
@@ -111,6 +118,7 @@ export async function createTrade(input: TradeInput): Promise<ActionResult> {
       emotion: input.emotion,
       notes: input.notes?.trim() || null,
       source: input.source ?? "quick",
+      external_id: ref,
     })
     .select("id")
     .single();

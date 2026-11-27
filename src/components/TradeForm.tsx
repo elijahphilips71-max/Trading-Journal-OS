@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { addScreenshot } from "@/app/actions/screenshots";
 import { createTrade, updateTrade, type RuleTick, type TradeInput } from "@/app/actions/trades";
 import { uploadScreenshot } from "@/lib/images";
+import { looksOffline, queueTrade } from "@/lib/offline-queue";
 import { gbp, shareCount, usd } from "@/lib/format";
 import { closeTrade as calcClose, positionSize, round } from "@/lib/maths";
 import { EMOTIONS, type Direction, type Rule, type Setup } from "@/lib/types";
@@ -66,6 +67,7 @@ export function TradeForm(p: TradeFormProps) {
   });
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+  const [queued, setQueued] = useState(false);
   const [file, setFile] = useState<File | null>(p.initialFile ?? null);
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   useEffect(() => () => {
@@ -123,8 +125,23 @@ export function TradeForm(p: TradeFormProps) {
       closedDay: closed ? closedDay : null,
     };
     if (!edit && calc && !calc.ok) return setError(calc.reason);
+    const keepForLater = () => {
+      try {
+        queueTrade(input);
+        setQueued(true);
+      } catch {
+        setError("You're offline and this browser can't hold the trade. Write it down and log it when you're back online.");
+      }
+    };
+    if (!edit && typeof navigator !== "undefined" && navigator.onLine === false) return keepForLater();
     start(async () => {
-      const res = edit && t ? await updateTrade(t.id, input) : await createTrade(input);
+      let res;
+      try {
+        res = edit && t ? await updateTrade(t.id, input) : await createTrade(input);
+      } catch (e) {
+        if (!edit && looksOffline(e)) return keepForLater();
+        return setError(looksOffline(e) ? "You're offline. Changes can be saved once you're back online." : "Something went wrong. Try again.");
+      }
       if (!res.ok) return setError(res.error);
       let q = "saved=1";
       if (!edit && file && p.userId) {
@@ -139,6 +156,20 @@ export function TradeForm(p: TradeFormProps) {
       router.push(`/trades/${res.id}?${q}`);
     });
   }
+
+  if (queued)
+    return (
+      <div className="card" role="status">
+        <span className="font-bold">Saved on this device</span>
+        <span className="muted" style={{ lineHeight: 1.5 }}>
+          No signal right now, so your {ticker.toUpperCase()} trade is waiting on this phone. It goes into your journal by itself as soon as you&apos;re back
+          online.{file ? " Screenshots can't wait offline, so add it to the trade once it shows up." : ""}
+        </span>
+        <button type="button" className="btn sec self-start" onClick={() => window.location.reload()}>
+          Log another trade
+        </button>
+      </div>
+    );
 
   return (
     <form

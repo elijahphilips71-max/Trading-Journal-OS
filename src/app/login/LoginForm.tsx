@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Logo } from "@/components/Logo";
 import { MailIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
@@ -30,6 +30,11 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
+
+  // Logged out: forget any pages the app saved for offline use.
+  useEffect(() => {
+    navigator.serviceWorker?.controller?.postMessage("clear-pages");
+  }, []);
   const [mode, setMode] = useState<Mode>("in");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
