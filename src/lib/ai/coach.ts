@@ -168,3 +168,33 @@ export async function extractFromScreenshot(base64: string, mediaType: "image/pn
   if (!parsed.success) throw new CoachError("Couldn't read that screenshot. Try a clearer one.");
   return parsed.data;
 }
+
+export const PatternsSchema = z.object({
+  bullets: z.array(z.object({ title: z.string(), detail: z.string() })),
+});
+export type Patterns = z.infer<typeof PatternsSchema>;
+
+const PATTERN_TASK = `Look across his trades below and spot the 3 to 5 most useful patterns in his PROCESS: which setups work and which don't, rule-breaks and what they cost, emotions linked to losses, exiting early or late, days that go badly. Base every point on the numbers given, and say how many trades it's based on when the sample is small.
+Each bullet: "title" = a short bold headline (max 6 words), "detail" = one plain sentence with the evidence and what to do about it.`;
+
+export async function spotPatterns(context: string): Promise<Patterns> {
+  const anthropic = getClient();
+  let res;
+  try {
+    res = await anthropic.beta.messages.parse({
+      model: AI_MODEL,
+      max_tokens: 6000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      system: [{ type: "text", text: COACH_RULES, cache_control: { type: "ephemeral" } }],
+      output_config: { effort: "medium", format: betaZodOutputFormat(PatternsSchema) },
+      messages: [{ role: "user", content: `${PATTERN_TASK}\n\n${context}` }],
+    });
+  } catch (e) {
+    throw toCoachError(e);
+  }
+  refusalCheck(res.stop_reason);
+  const parsed = PatternsSchema.safeParse(res.parsed_output);
+  if (!parsed.success || parsed.data.bullets.length === 0) throw new CoachError("The coach couldn't find patterns this time.");
+  return { bullets: parsed.data.bullets.slice(0, 5) };
+}

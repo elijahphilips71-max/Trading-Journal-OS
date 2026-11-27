@@ -15,7 +15,19 @@ function greeting(now: Date) {
   return h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening";
 }
 
-export function HomeView({ profile, trades, setups, now }: { profile: Profile; trades: TradeWithRules[]; setups: Setup[]; now: Date }) {
+export function HomeView({
+  profile,
+  trades,
+  setups,
+  now,
+  pattern = null,
+}: {
+  profile: Profile;
+  trades: TradeWithRules[];
+  setups: Setup[];
+  now: Date;
+  pattern?: { title: string; detail: string } | null;
+}) {
   const s = summarise(profile, trades, now);
   const setupName = new Map(setups.map((x) => [x.id, x.name]));
   const p = s.progress;
@@ -126,12 +138,20 @@ export function HomeView({ profile, trades, setups, now }: { profile: Profile; t
           <div className="card ai">
             <div className="flex items-center gap-2">
               <SparkIcon size={18} style={{ color: "var(--accent-soft)" }} />
-              <span className="font-bold" style={{ color: "var(--accent-soft)" }}>Coach</span>
+              <span className="font-bold" style={{ color: "var(--accent-soft)" }}>{pattern ? "Coach spotted a pattern" : "Coach"}</span>
             </div>
             <div style={{ lineHeight: 1.5 }}>
-              {s.trades.done < 5
-                ? `Close ${5 - s.trades.done} more trade${5 - s.trades.done === 1 ? "" : "s"} and your coach will start spotting patterns.`
-                : "Pattern spotting switches on with the AI coach step."}
+              {pattern ? (
+                <>
+                  <b>{pattern.title}.</b> {pattern.detail}
+                </>
+              ) : s.trades.done < 3 ? (
+                `Close ${3 - s.trades.done} more trade${3 - s.trades.done === 1 ? "" : "s"} and your coach can start spotting patterns.`
+              ) : (
+                <>
+                  Ready to look for patterns. <Link href="/stats">Open Stats</Link> and tap “Spot my patterns”.
+                </>
+              )}
             </div>
             <Link className="btn sec sm self-start" href="/playbook">Open my playbook</Link>
           </div>

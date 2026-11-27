@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AI_MODEL, CoachError, DAILY_LIMIT, askCoach, reviewTrade, type ChatTurn } from "@/lib/ai/coach";
+import { AI_MODEL, CoachError, DAILY_LIMIT, askCoach, reviewTrade, spotPatterns, type ChatTurn } from "@/lib/ai/coach";
 import { statsContext, tradeContext } from "@/lib/ai/context";
 import { requireOnboarded } from "@/lib/data";
-import { getTrade, listSetups, listTrades } from "@/lib/journal";
+import { getTrade, listSetups, listTrades, toClosed } from "@/lib/journal";
+import { groupStats, londonDay, weekdayOf } from "@/lib/maths";
+import { gbp } from "@/lib/format";
 import { summarise } from "@/lib/summary";
 
 export type CoachResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -103,6 +105,56 @@ export async function sendCoachMessage(tradeId: string | null, question: string)
     ]);
     revalidatePath(tradeId ? `/trades/${tradeId}` : "/coach");
     return { ok: true, data: { answer } };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/** "Patterns this month" (period = "YYYY-MM") or all time (period = "all"). Saved, so it's only re-run on request. */
+export async function generatePatterns(period: string): Promise<CoachResult<{ id: string }>> {
+  if (period !== "all" && !/^\d{4}-\d{2}$/.test(period)) return { ok: false, error: "Bad period." };
+  const ctx = await requireOnboarded();
+  const { supabase, profile } = ctx;
+  if (!(await underLimit(ctx))) return { ok: false, error: LIMIT_MSG };
+  const [setups, trades] = await Promise.all([listSetups(supabase), listTrades(supabase)]);
+  const closed = trades.filter(
+    (t) => t.status === "closed" && t.closed_at && (period === "all" || londonDay(t.closed_at).startsWith(period)),
+  );
+  if (closed.length < 3) return { ok: false, error: "Close at least 3 trades first so there's something to look at." };
+
+  const name = new Map(setups.map((s) => [s.id, s.name]));
+  const rows = closed.map((t) => ({ ...toClosed([t])[0], t }));
+  const fmt = (label: string, g: ReturnType<typeof groupStats>) =>
+    `${label}: ` + g.map((x) => `${x.key} ${x.trades} trades, ${x.wins} wins, ${gbp(x.pnl, { sign: true })}, avg ${x.avgR}R`).join("; ");
+  const brokenCount = new Map<string, number>();
+  for (const t of closed) for (const r of t.trade_rules) if (!r.followed) brokenCount.set(r.rule_text, (brokenCount.get(r.rule_text) ?? 0) + 1);
+  const brokenRules = [...brokenCount].map(([k, v]) => `${k} ×${v}`).join("; ");
+  const lines = [
+    `Period: ${period === "all" ? "all time" : period}. ${closed.length} closed trades.`,
+    fmt("By setup", groupStats(rows, (r) => (r.t.setup_id ? (name.get(r.t.setup_id) ?? "Unknown") : "No setup"))),
+    fmt("By emotion", groupStats(rows, (r) => r.t.emotion ?? "Not recorded")),
+    fmt("By weekday closed", groupStats(rows, (r) => weekdayOf(r.closedDay))),
+    fmt("All rules followed?", groupStats(rows, (r) => (r.allRulesFollowed ? "All rules followed" : "Broke a rule"))),
+    `Broken rules: ${brokenRules || "none"}`,
+    "Trades:",
+    ...rows.map(
+      (r) =>
+        `${r.closedDay} ${r.t.ticker} ${r.t.direction} ${r.t.setup_id ? name.get(r.t.setup_id) : "no setup"}, ${gbp(r.pnlGbp, { sign: true })} (${r.r}R), felt ${r.t.emotion ?? "?"}, rules ${r.t.trade_rules.filter((x) => x.followed).length}/${r.t.trade_rules.length}${r.t.exit != null && r.t.target != null && Math.abs(r.t.target - r.t.entry) > 0 ? `, exit ${Math.round(((r.t.exit - r.t.entry) / (r.t.target - r.t.entry)) * 100)}% of way to target` : ""}${r.t.notes ? `, note: "${r.t.notes.slice(0, 160)}"` : ""}`,
+    ),
+    `Starting balance ${gbp(profile.starting_balance)}.`,
+  ];
+
+  try {
+    const res = await spotPatterns(lines.join("\n"));
+    const { data, error } = await supabase
+      .from("ai_patterns")
+      .insert({ period, bullets: res.bullets, model: AI_MODEL })
+      .select("id")
+      .single();
+    if (error || !data) return { ok: false, error: "Couldn't save the patterns." };
+    revalidatePath("/stats");
+    revalidatePath("/");
+    return { ok: true, data: { id: data.id } };
   } catch (e) {
     return fail(e);
   }
