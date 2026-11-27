@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { CheckIcon, CrossIcon } from "@/components/icons";
 import { requireOnboarded } from "@/lib/data";
 import { gbp, pct, rMultiple, shareCount, shortDate, tone, usd } from "@/lib/format";
-import { getTrade, listSetups } from "@/lib/journal";
+import { getTrade, listScreenshots, listSetups } from "@/lib/journal";
+import { ScreenshotGallery } from "@/components/ScreenshotGallery";
 import { daysBetween, londonDay } from "@/lib/maths";
 import { CloseTradeForm, DeleteTradeButton, ReopenButton } from "./TradeActions";
 
@@ -14,8 +15,8 @@ export const metadata: Metadata = { title: "Trade" };
 export default async function TradePage({ params, searchParams }: PageProps<"/trades/[id]">) {
   const { id } = await params;
   const sp = await searchParams;
-  const { supabase } = await requireOnboarded();
-  const [trade, setups] = await Promise.all([getTrade(supabase, id), listSetups(supabase)]);
+  const { supabase, userId } = await requireOnboarded();
+  const [trade, setups, shots] = await Promise.all([getTrade(supabase, id), listSetups(supabase), listScreenshots(supabase, id)]);
   if (!trade) notFound();
 
   const setup = setups.find((s) => s.id === trade.setup_id);
@@ -30,6 +31,11 @@ export default async function TradePage({ params, searchParams }: PageProps<"/tr
     <>
       <PageHeader title={`${trade.ticker} · ${dir}`} back="/trades" />
       <main className="page">
+        {sp.saved === "shotfail" && (
+          <div className="notice warn" role="status">
+            Trade saved, but the screenshot didn&apos;t upload. Add it again below.
+          </div>
+        )}
         {sp.saved === "1" && (
           <div className="notice ok flex items-center gap-2" role="status">
             <CheckIcon size={16} /> Saved.
@@ -51,6 +57,8 @@ export default async function TradePage({ params, searchParams }: PageProps<"/tr
         </div>
 
         {open && <CloseTradeForm id={trade.id} today={today} openedDay={londonDay(trade.opened_at)} direction={trade.direction} target={trade.target} stop={trade.stop} />}
+
+        <ScreenshotGallery tradeId={trade.id} userId={userId} shots={shots} closed={!open} />
 
         <div className="card">
           <div className="grid3">

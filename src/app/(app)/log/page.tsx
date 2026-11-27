@@ -19,7 +19,7 @@ const MODES = [
 export default async function LogPage({ searchParams }: PageProps<"/log">) {
   const sp = await searchParams;
   const mode = MODES.some((m) => m.key === sp.mode) ? (sp.mode as string) : "quick";
-  const { supabase, profile } = await requireOnboarded();
+  const { supabase, profile, userId } = await requireOnboarded();
   const [trades, rules, setups, fx] = await Promise.all([
     listTrades(supabase),
     listRules(supabase),
@@ -42,6 +42,7 @@ export default async function LogPage({ searchParams }: PageProps<"/log">) {
         {mode === "quick" && (
           <TradeForm
             mode="new"
+            userId={userId}
             balance={accountBalance(profile.starting_balance, trades)}
             fx={fx.rate}
             fxLive={fx.live}

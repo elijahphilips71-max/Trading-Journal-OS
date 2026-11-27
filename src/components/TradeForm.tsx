@@ -1,13 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { addScreenshot } from "@/app/actions/screenshots";
 import { createTrade, updateTrade, type RuleTick, type TradeInput } from "@/app/actions/trades";
+import { uploadScreenshot } from "@/lib/images";
 import { gbp, shareCount, usd } from "@/lib/format";
 import { closeTrade as calcClose, positionSize, round } from "@/lib/maths";
 import { EMOTIONS, type Direction, type Rule, type Setup } from "@/lib/types";
 import type { TradeWithRules } from "@/lib/journal";
-import { CameraIcon, CheckIcon } from "./icons";
+import { CheckIcon } from "./icons";
+import { ImageDrop } from "./ImageDrop";
 
 export type TradeFormProps = {
   mode: "new" | "edit";
@@ -23,6 +26,10 @@ export type TradeFormProps = {
   /** Values to pre-fill (e.g. from a screenshot). */
   prefill?: Partial<{ ticker: string; direction: Direction; entry: number; stop: number; target: number; setupId: string }>;
   prefillNote?: string;
+  /** Needed to upload a screenshot with a new trade. */
+  userId?: string;
+  /** A screenshot to attach on save (e.g. the one used for auto-fill). */
+  initialFile?: File | null;
 };
 
 const RISKS = [1, 1.5, 2];
@@ -59,6 +66,11 @@ export function TradeForm(p: TradeFormProps) {
   });
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+  const [file, setFile] = useState<File | null>(p.initialFile ?? null);
+  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview);
+  }, [preview]);
 
   const edit = p.mode === "edit";
   const closed = t?.status === "closed";
@@ -114,7 +126,17 @@ export function TradeForm(p: TradeFormProps) {
     start(async () => {
       const res = edit && t ? await updateTrade(t.id, input) : await createTrade(input);
       if (!res.ok) return setError(res.error);
-      router.push(`/trades/${res.id}?saved=1`);
+      let q = "saved=1";
+      if (!edit && file && p.userId) {
+        try {
+          const path = await uploadScreenshot(p.userId, res.id, file);
+          const shot = await addScreenshot(res.id, path, "entry");
+          if (!shot.ok) q = "saved=shotfail";
+        } catch {
+          q = "saved=shotfail";
+        }
+      }
+      router.push(`/trades/${res.id}?${q}`);
     });
   }
 
@@ -317,11 +339,19 @@ export function TradeForm(p: TradeFormProps) {
           <label htmlFor="nt">Notes (optional)</label>
           <textarea id="nt" placeholder="Why this trade? What's the plan?" value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
-        {!edit && (
-          <button type="button" className="btn sec" disabled title="Coming in the screenshots step">
-            <CameraIcon size={18} />
-            Attach chart screenshot (soon)
-          </button>
+        {!edit && p.userId && (
+          preview ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element -- local preview */}
+              <img src={preview} alt="Chart screenshot to attach" className="h-16 w-24 rounded-lg border border-[var(--border)] object-cover" />
+              <span className="muted flex-1 text-[13px]">Screenshot will be saved with the trade.</span>
+              <button type="button" className="btn sec sm" onClick={() => setFile(null)}>
+                Remove
+              </button>
+            </div>
+          ) : (
+            <ImageDrop onImage={setFile} title="Attach chart screenshot" />
+          )
         )}
       </div>
 

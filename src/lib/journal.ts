@@ -85,3 +85,21 @@ export function recentTickers(trades: Trade[], fallback = ["SPY", "QQQ", "AAPL",
   for (const f of fallback) if (!seen.includes(f)) seen.push(f);
   return seen.slice(0, 6);
 }
+
+export type Screenshot = { id: string; kind: "entry" | "exit"; storage_path: string; url: string | null };
+
+/** A trade's screenshots with short-lived links (the bucket is private). */
+export async function listScreenshots(supabase: SupabaseClient, tradeId: string): Promise<Screenshot[]> {
+  const { data } = await supabase
+    .from("trade_screenshots")
+    .select("id, kind, storage_path")
+    .eq("trade_id", tradeId)
+    .order("created_at");
+  const rows = (data ?? []) as Omit<Screenshot, "url">[];
+  if (!rows.length) return [];
+  const { data: signed } = await supabase.storage
+    .from("screenshots")
+    .createSignedUrls(rows.map((r) => r.storage_path), 60 * 60);
+  const byPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  return rows.map((r) => ({ ...r, url: byPath.get(r.storage_path) ?? null }));
+}

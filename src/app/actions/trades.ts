@@ -235,6 +235,8 @@ export async function reopenTrade(id: string): Promise<ActionResult> {
 
 export async function deleteTrade(id: string): Promise<ActionResult> {
   const { supabase } = await requireOnboarded();
+  const { data: shots } = await supabase.from("trade_screenshots").select("storage_path").eq("trade_id", id);
+  if (shots?.length) await supabase.storage.from("screenshots").remove(shots.map((s) => s.storage_path));
   const { error } = await supabase.from("trades").delete().eq("id", id);
   if (error) return { ok: false, error: "Couldn't delete the trade. Try again." };
   revalidateAll();
