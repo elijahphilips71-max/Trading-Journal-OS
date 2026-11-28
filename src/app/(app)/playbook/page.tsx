@@ -11,6 +11,7 @@ import type { Setup } from "@/lib/types";
 import { BiasForm } from "./BiasForm";
 import { RulesEditor } from "./RulesEditor";
 import { EditableSetup, SetupEditor } from "./SetupEditor";
+import { TodayTab } from "./TodayTab";
 
 export const metadata: Metadata = { title: "Playbook" };
 
@@ -40,7 +41,7 @@ export default async function PlaybookPage({ searchParams }: PageProps<"/playboo
         </nav>
         {tab === "bias" && <BiasTab />}
         {tab === "setup" && <SetupTab selected={typeof sp.s === "string" ? sp.s : undefined} />}
-        {tab === "today" && <TodayTab />}
+        {tab === "today" && <TodayTab selected={typeof sp.d === "string" ? sp.d : undefined} />}
       </main>
     </>
   );
@@ -245,18 +246,6 @@ function Stat({ label, value, hint, cls = "" }: { label: string; value: string; 
       <span className="lbl">{label}</span>
       <span className={`num text-[18px] font-bold ${cls}`}>{value}</span>
       {hint && <span className="muted text-[11px]">{hint}</span>}
-    </div>
-  );
-}
-
-function TodayTab() {
-  return (
-    <div className="card">
-      <span className="font-bold">Trade today?</span>
-      <span className="muted" style={{ lineHeight: 1.5 }}>
-        Coming next: a daily answer on whether to trade, US market hours in UK time, the best windows of the day, big news events and earnings dates for your
-        shares. Until then, check for earnings and big news (like the jobs report or interest rate decisions) before you enter.
-      </span>
     </div>
   );
 }

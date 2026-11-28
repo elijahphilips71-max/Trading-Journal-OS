@@ -35,3 +35,11 @@ Open http://localhost:3000.
 1. Make sure `SUPABASE_SERVICE_ROLE_KEY` is set in Vercel (step 2). Dad's page needs it because Dad doesn't log in. Supabase calls it the **secret** key (`sb_secret_…`) or the older **service_role** key.
 2. In the app, open **Dad's view**, switch on the live link and press **Copy link**.
 3. Send Dad the link. He sees only the summary card shown under "Preview". Switch the link off or press **Make a new link** any time to stop the old one working.
+
+## 5. Earnings dates for "Trade today?" (free)
+1. Go to finnhub.io, press **Get free API key** and sign up (no card needed).
+2. On your Finnhub dashboard, copy the **API key**.
+3. In Vercel: your project > **Settings** > **Environment Variables**. Add `MARKET_DATA_API_KEY` with the key as its value, then **Redeploy**.
+4. Open Playbook > **Trade today?**. The "Earnings on your shares" box now lists results dates for your open trades and recent tickers.
+
+Fed decisions and the jobs report are built into the app. Update the Fed dates in `src/lib/market/events.ts` each year.
