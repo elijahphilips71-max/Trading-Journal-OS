@@ -11,8 +11,21 @@ export const requireProfile = cache(async () => {
   const userId = claims?.claims?.sub;
   if (!userId) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single<Profile>();
-  if (!profile) redirect("/login");
+  let { data: profile, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle<Profile>();
+
+  // Logged in but no profile row (e.g. the account was made before the database was set up).
+  // Make one now instead of sending him to /login, which would bounce straight back here forever.
+  if (!profile && !error) {
+    const name = (claims?.claims?.user_metadata as { first_name?: string } | undefined)?.first_name?.trim();
+    const made = await supabase.from("profiles").insert({ id: userId, display_name: name || null }).select("*").single<Profile>();
+    if (!made.error) {
+      await supabase.from("share_links").insert({ user_id: userId });
+      profile = made.data;
+    } else {
+      error = made.error;
+    }
+  }
+  if (!profile) redirect(`/auth/problem?code=${encodeURIComponent(error?.code ?? "no-profile")}`);
 
   // Numbers come back from Postgres as strings for numeric columns.
   const p: Profile = {
